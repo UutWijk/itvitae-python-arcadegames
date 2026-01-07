@@ -1,8 +1,11 @@
-##Games to be made:
+Games to be made:
 
 Astroids
+
 Frogger
+
 Tetris
+
 Space Invaders
 
 
