@@ -5,5 +5,5 @@ Frogger
 Tetris
 Space Invaders
 ```
-launcher
+launcher  
 multiplayer (2 spelers)
