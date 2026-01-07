@@ -1,9 +1,8 @@
-## Games to be made:
 ```
-Astroids
-Frogger
-Tetris
-Space Invaders
-```
+Game Astroids
+Game Frogger
+Game Tetris
+Game Space Invaders
 launcher  
 multiplayer (2 spelers)
+```
