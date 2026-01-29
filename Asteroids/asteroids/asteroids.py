@@ -95,8 +95,8 @@ class Asteroids(Game):
                                     self.sort_highscores()
                                     with open(self.highscore_file, "w") as f:
                                         f.write("\n".join(self.highscore_list))
-                            for _ in range(random.randint(2, 6)):
-                                self.bullets.add(Bullet(obstacle.pos.x, obstacle.pos.y, random.uniform(0, 360), lifetime=random.uniform(0.1, 0.6), speed=random.uniform(100, 200), kills=False))
+                            for _ in range(random.randint(3, 6)):
+                                self.bullets.add(Bullet(self.player.pos.x + random.randrange(0,10), self.player.pos.y + random.randrange(0,10), random.uniform(0, 360), lifetime=random.uniform(0.1, 2.5), speed=random.uniform(10, 50), kills=False))
                             self.player.death()
                             
                             # kill the obstacle that hit them                            
@@ -108,15 +108,16 @@ class Asteroids(Game):
                 for bullet in self.bullets:
                     if pygame.sprite.collide_mask(bullet, obstacle) and bullet.kills:
                         bullet.kill()
-                        match obstacle.stage:
-                            case 1:
-                                self.player.add_score(10)
-                            case 2:
-                                self.player.add_score(20)
-                            case 3:
-                                self.player.add_score(50)
-                        for _ in range(random.randint(2, 6)):
-                            self.bullets.add(Bullet(obstacle.pos.x, obstacle.pos.y, random.uniform(0, 360), lifetime=random.uniform(0.1, 0.6), speed=random.uniform(100, 200), kills=False))
+                        if not self.game_over:
+                            match obstacle.stage:
+                                case 1:
+                                    self.player.add_score(10)
+                                case 2:
+                                    self.player.add_score(20)
+                                case 3:
+                                    self.player.add_score(50)
+                        for _ in range(random.randint(2, 5)):
+                            self.bullets.add(Bullet(obstacle.pos.x, obstacle.pos.y, random.uniform(0, 360), lifetime=random.uniform(0.1, 1.6), speed=random.uniform(10, 200), kills=False))
                         new_obstacles = obstacle.killed()
                         self.sounds.asteroid_break()
                         if new_obstacles:
@@ -175,7 +176,7 @@ class Asteroids(Game):
 
             if self.game_over_timer > 1.0:
                 if self.x_offset > 0:
-                    self.x_offset -= (self.game_over_timer - 1) * 750
+                    self.x_offset -= (self.game_over_timer - 1) * 350
                 else:
                     self.x_offset = 0
                 # High scores

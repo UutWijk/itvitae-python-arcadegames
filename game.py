@@ -11,7 +11,8 @@ class Game(State):
     def handle_events(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                self.next_state = "MENU" # Signal to go back   
+                self.next_state = "MENU" # Signal to go back
+   
 
     def update(self, dt) -> None:
         pass

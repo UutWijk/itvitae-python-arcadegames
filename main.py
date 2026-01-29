@@ -3,6 +3,7 @@ from pygame.sprite import Sprite, Group
 from menu import MainMenu
 from Asteroids.asteroids.asteroids import Asteroids
 from Frogger.Frogger.scripts.main import Frogger
+from Pong.pong.src.pong import Pong
 import os
 import sys
 
@@ -22,8 +23,8 @@ pygame.display.set_caption("ASTEROIDS")
 
 states = {
     "Asteroids": Asteroids(DISPLAY_SCREEN),
-    "Frogger": Frogger(DISPLAY_SCREEN)         
-    # "Pong": Pong(DISPLAY_SCREEN)
+    "Frogger": Frogger(DISPLAY_SCREEN),
+    "Pong": Pong(DISPLAY_SCREEN)
     
 }
 games = states.keys()
