@@ -3,7 +3,8 @@ from pygame.sprite import Sprite, Group
 from menu import MainMenu
 from Asteroids.asteroids.asteroids import Asteroids
 from Frogger.Frogger.scripts.main import Frogger
-from Pong.pong.src.pong import Pong
+from Blockade.blockade.blockade import Blockade
+# from Pong.pong.src.pong import Pong
 import os
 import sys
 
@@ -24,8 +25,8 @@ pygame.display.set_caption("ASTEROIDS")
 states = {
     "Asteroids": Asteroids(DISPLAY_SCREEN),
     "Frogger": Frogger(DISPLAY_SCREEN),
-    "Pong": Pong(DISPLAY_SCREEN)
-    
+    "Blockade": Blockade(DISPLAY_SCREEN),
+    # "Pong": Pong(DISPLAY_SCREEN),
 }
 games = states.keys()
 states["MENU"] = MainMenu(DISPLAY_SCREEN, games)
@@ -35,8 +36,8 @@ current_state_key = "MENU"
 while True:
     dt = clock.tick(FPS)/1000 # Gets time since last frame
     current_state = states[current_state_key]
-
-    for event in pygame.event.get():
+    events = pygame.event.get()
+    for event in events:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
@@ -51,4 +52,5 @@ while True:
 
     current_state.update(dt)
     current_state.draw()
+    current_state.reset_just_pressed()
     pygame.display.flip()

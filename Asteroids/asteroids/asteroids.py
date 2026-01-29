@@ -36,10 +36,16 @@ class Asteroids(Game):
             ship_image,
             (int(w * SCALE), int(h * SCALE)))
         self.ship_image = ship_image
-        self.title_screen = True
-        self.game_over = False
+
         self.game_over_timer = 0.0
-        self.x_offset = 400 # high score animation offset
+
+
+        self.states = [
+            "gameplay",
+            "title",
+            "game_over"
+        ]
+        self.current_state = "title"
         
         self.start_count = 4
         self.current_count = 4
@@ -52,24 +58,14 @@ class Asteroids(Game):
             self.spawn_obstacle()
             self.spawn_obstacle(stage=2)
             self.spawn_obstacle(stage=3)
+
             
 
 
     def update(self, dt) -> None:
-        if not self.title_screen:
-            self.player.update(dt)
-        self.bullets.update(dt)
-        self.obstacles.update(dt)
-
-        if self.game_over:
-            self.game_over_timer += dt
-            if self.game_over_timer > 1.0:
-                keys = pygame.key.get_pressed()
-                if keys[pygame.K_SPACE]:
-                    self.reset()
-                return
-        
-        if not self.title_screen:
+        if self.current_state != "title":
+            self.player.update(dt, self.pressed, self.just_pressed)
+            
             #collision detection
             if len(self.obstacles) == 0:
                 self.current_count += 1
@@ -88,7 +84,8 @@ class Asteroids(Game):
                         if hit_obstacles:
                             self.player.lives -= 1
                             if self.player.lives <= 0:
-                                self.game_over = True    
+                                self.current_state = "game_over"
+                                self.game_over_timer = 0.0  
                                 # Check and update high scores
                                 if len(self.highscore_list) < 10 or self.player.score > int(self.highscore_list[-1]):
                                     self.highscore_list.append(str(self.player.score))
@@ -107,15 +104,14 @@ class Asteroids(Game):
                                     self.obstacles.add(new_obstacles)
                 for bullet in self.bullets:
                     if pygame.sprite.collide_mask(bullet, obstacle) and bullet.kills:
-                        bullet.kill()
-                        if not self.game_over:
-                            match obstacle.stage:
-                                case 1:
-                                    self.player.add_score(10)
-                                case 2:
-                                    self.player.add_score(20)
-                                case 3:
-                                    self.player.add_score(50)
+                        bullet.kill()                        
+                        match obstacle.stage:
+                            case 1:
+                                self.player.add_score(10)
+                            case 2:
+                                self.player.add_score(20)
+                            case 3:
+                                self.player.add_score(50)
                         for _ in range(random.randint(2, 5)):
                             self.bullets.add(Bullet(obstacle.pos.x, obstacle.pos.y, random.uniform(0, 360), lifetime=random.uniform(0.1, 1.6), speed=random.uniform(10, 200), kills=False))
                         new_obstacles = obstacle.killed()
@@ -124,10 +120,26 @@ class Asteroids(Game):
                             self.obstacles.add(new_obstacles)
             if self.player.respawning and not obstacle_in_center and self.player.respawn_timer >= self.player.respawn_duration and self.player.lives > 0:
                 self.player.respawn()
+            
+        self.bullets.update(dt)
+        self.obstacles.update(dt)
+
+        if self.current_state == "game_over":
+            self.game_over_timer += dt
+            if self.game_over_timer > 1.0:
+                if self.pressed["a"]:
+                    self.reset()
+                if self.pressed["b"]:
+                    self.reset()
+                    self.__init__(self.screen)
+                    self.next_state = "MENU"
+                return
+
+
 
     def draw(self) -> None:
         self.screen.fill("#000000")
-        if not self.title_screen:
+        if self.current_state is not "title":
             self.player.draw(self.screen)
             for _ in range(self.player.lives):
                 self.screen.blit(self.ship_image, (10 + _ * 40, 60))
@@ -135,26 +147,24 @@ class Asteroids(Game):
 
         self.bullets.draw(self.screen)
         self.obstacles.draw(self.screen)
-        
-        if self.title_screen:
+
+        if self.current_state == "title":
             semi_opaque_surface = pygame.Surface((self.screen.get_width(), self.screen.get_height()))
             semi_opaque_surface.set_alpha(150)
             semi_opaque_surface.fill((0, 0, 0))
             self.screen.blit(semi_opaque_surface, (0, 0))
             title_text = self.font_mega.render("ASTEROIDS", True, (255, 255, 255))
             title_rect = title_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 - 100))
-            instruction_text = self.font.render("Press SPACE to Start", True, (255, 255, 255))
+            instruction_text = self.font.render("Press A to Start", True, (255, 255, 255))
             instruction_rect = instruction_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 + 100))
             self.screen.blit(title_text, title_rect)
             if pygame.time.get_ticks() // 500 % 2 == 0:
                 self.screen.blit(instruction_text, instruction_rect)
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_SPACE]:
+            if self.pressed["a"]:
                 self.reset()
-                self.title_screen = False
             return
 
-        if self.game_over:
+        if self.current_state == "game_over":
             semi_opaque_surface = pygame.Surface((self.screen.get_width(), self.screen.get_height()))
             if self.game_over_timer < 1.0:
                 alpha = int(self.game_over_timer * 180)
@@ -164,25 +174,32 @@ class Asteroids(Game):
             semi_opaque_surface.fill((0, 0, 0))
             self.screen.blit(semi_opaque_surface, (0, 0))
             game_over_text = self.font_large.render("GAME OVER", True, (255, 255, 255))
-            text_rect = game_over_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 - 100))
-            score_text = self.font.render(f"Final Score: {self.player.score}", True, (255, 255, 255))
-            score_rect = score_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 + 40))
-            new_game_text = self.font.render("Press SPACE to play again", True, (255, 255, 255))
-            new_game_rect = new_game_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 + 100))
-            if self.game_over_timer > 1.0 and self.game_over_timer * 2 % 2 < 1:
-                self.screen.blit(new_game_text, new_game_rect)
-            self.screen.blit(score_text, score_rect)
+            text_rect = game_over_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 - 120))
+            score_text = self.font.render("Final Score:", True, (255, 255, 255))
+            score_number = self.font_large.render(f"{self.player.score}", True, (255, 255, 255))
+            
+            score_rect = score_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2))
+            score_number_rect = score_number.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 + 65))
+            new_game_text = self.font.render("Press A to play again", True, (255, 255, 255))
+            new_game_rect = new_game_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 + 130))
+            back_to_menu_text = self.font_small.render("Press B to return to menu", True, (255, 255, 255))
+            back_to_menu_rect = back_to_menu_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 + 195))
+            if self.game_over_timer > 1.0:
+                self.screen.blit(score_text, score_rect)
+            if self.game_over_timer > 2.0:
+                self.screen.blit(score_number, score_number_rect)
+            if self.game_over_timer > 3.0:
+                if self.game_over_timer * 2 % 2 < 1:
+                    self.screen.blit(new_game_text, new_game_rect)
+                self.screen.blit(back_to_menu_text, back_to_menu_rect)
             self.screen.blit(game_over_text, text_rect)
 
-            if self.game_over_timer > 1.0:
-                if self.x_offset > 0:
-                    self.x_offset -= (self.game_over_timer - 1) * 350
-                else:
-                    self.x_offset = 0
+            if self.game_over_timer > 3.0:
+
                 # High scores
                 hs_title = self.font.render("High Scores", True, (255, 255, 255))
-                hs_x = self.screen.get_width() * 0.88 + self.x_offset
-                hs_y_start = 100
+                hs_x = self.screen.get_width() * 0.88
+                hs_y_start = 50
                 
                 self.screen.blit(hs_title, hs_title.get_rect(center=(hs_x, hs_y_start)))
                 top_ten = self.highscore_list[:10]
@@ -205,12 +222,10 @@ class Asteroids(Game):
             self.obstacles.add(Obstacle(random_x, random_y, self.screen.get_width(), self.screen.get_height(), stage))
 
     def reset(self):
-        self.game_over = False
+        self.current_state = "gameplay"
         self.bullets.empty()
         self.obstacles.empty()
-        
-        self.game_over = False
-        self.game_over_timer = 0.0
+
         self.player = Player(self.screen.get_width(), self.screen.get_height(), self.bullets, self.sounds)
         self.current_count = self.start_count
         self.y_offset = 750 # high score animation offset

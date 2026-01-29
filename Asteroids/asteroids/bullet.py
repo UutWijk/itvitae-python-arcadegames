@@ -35,10 +35,7 @@ class Bullet(Sprite):
         # Update de actuele REect positie. 
         self.rect.center = self.pos
 
-        # Checken of bullet het scherm verlaat. 
-        if not pygame.display.get_surface().get_rect().contains(self.rect):
-            # Zodra bullet het scherm verlaat wordt de .kill() methode aangeroepen. 
-            self.kill()
+
 
 
 
