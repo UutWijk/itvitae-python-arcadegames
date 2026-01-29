@@ -181,9 +181,9 @@ class Asteroids(Game):
             score_rect = score_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2))
             score_number_rect = score_number.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 + 65))
             new_game_text = self.font.render("Press A to play again", True, (255, 255, 255))
-            new_game_rect = new_game_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 + 130))
+            new_game_rect = new_game_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 + 180))
             back_to_menu_text = self.font_small.render("Press B to return to menu", True, (255, 255, 255))
-            back_to_menu_rect = back_to_menu_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 + 195))
+            back_to_menu_rect = back_to_menu_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 + 245))
             if self.game_over_timer > 1.0:
                 self.screen.blit(score_text, score_rect)
             if self.game_over_timer > 2.0:
