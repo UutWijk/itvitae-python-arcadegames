@@ -1,7 +1,7 @@
 import os
 import pygame
-from log import Log
-from constants import TILE_SIZE, SCREEN_WIDTH
+from .log import Log
+from .constants import TILE_SIZE, SCREEN_WIDTH
 
 class WaterLane:
     def __init__(self, y_pos, moving_right, speed, log_count):

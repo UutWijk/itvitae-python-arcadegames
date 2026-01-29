@@ -2,19 +2,20 @@ import pygame
 import sys
 import os
 
-from player import Player
-from highscore import HighScore
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT
+from .player import Player
+from .highscore import HighScore
+from .constants import SCREEN_WIDTH, SCREEN_HEIGHT
 
 
 class GameOver:
     def __init__(self, player: Player, highscore: HighScore):
+        current_dir = os.path.dirname(os.path.abspath(__file__))
         if os.name == "nt":
-            self.path_game_over = os.path.join("assets", "Gameover.png")
-            self.path_score = os.path.join("assets", "Score.png")
-            self.path_press_space = os.path.join("assets", "PressSpace.png")
-            self.path_press_a = os.path.join("assets", "PressA.png")
-            self.path_font = os.path.join("assets", "fontPixel.ttf")
+            self.path_game_over = os.path.join(current_dir, "..", "assets", "Gameover.png")
+            self.path_score = os.path.join(current_dir, "..", "assets", "Score.png")
+            self.path_press_space = os.path.join(current_dir, "..", "assets", "PressSpace.png")
+            self.path_press_a = os.path.join(current_dir, "..", "assets", "PressA.png")
+            self.path_font = os.path.join(current_dir, "..", "assets", "fontPixel.ttf")
             self.font = pygame.Font(self.path_font, size=120)
         elif os.name == "posix":
             try:

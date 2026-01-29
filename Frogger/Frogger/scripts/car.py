@@ -1,14 +1,15 @@
 import pygame
 import os
 from pygame import Rect, Color
-from constants import TILE_SIZE
+from .constants import TILE_SIZE
 
 class Car:
     def __init__(self, x: int, y: int, driving_rightwards: bool, speed: float):
+        current_dir = os.path.dirname(os.path.abspath(__file__))
         if os.name == "posix":
             self.path = os.path.join("..", "assets", "Car.png")
         elif os.name == "nt":
-            self.path = os.path.join("assets", "Car.png")
+            self.path = os.path.join(current_dir, "..", "assets", "Car.png")
         else:
             print("Error with asset loading, please report")
             sys.exit()

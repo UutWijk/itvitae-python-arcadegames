@@ -1,11 +1,12 @@
 import pygame
 from pygame.sprite import Sprite, Group
 from menu import MainMenu
-from asteroids.asteroids import Asteroids
+from Asteroids.asteroids.asteroids import Asteroids
+from Frogger.Frogger.scripts.main import Frogger
 import os
 import sys
 
-from pong.src.pong import Pong
+# from pong.src.pong import Pong
 
 pygame.init()
 
@@ -21,7 +22,8 @@ pygame.display.set_caption("ASTEROIDS")
 
 states = {
     "Asteroids": Asteroids(DISPLAY_SCREEN),
-    "Pong": Pong(DISPLAY_SCREEN)
+    "Frogger": Frogger(DISPLAY_SCREEN)
+    # "Pong": Pong(DISPLAY_SCREEN)
     
 }
 games = states.keys()

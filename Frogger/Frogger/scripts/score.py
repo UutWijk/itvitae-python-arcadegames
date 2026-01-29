@@ -1,6 +1,6 @@
 import pygame
 import os
-from player import Player
+from .player import Player
 
 pygame.init()
 
@@ -11,11 +11,12 @@ class Score:
         self.highscore = highscore
         self._score = 0
 
+        current_dir = os.path.dirname(os.path.abspath(__file__))
         if os.name == "posix":
             self.path = os.path.join("..", "assets", "font.ttf")
         elif os.name == "nt":
-            self.path = os.path.join("assets", "font.ttf")
-
+            self.path = os.path.join(current_dir, "..", "assets", "font.ttf")
+        
         self.font = pygame.font.Font(self.path, size=50)
 
     def update(self, dt: float):
