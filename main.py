@@ -22,7 +22,7 @@ pygame.display.set_caption("ASTEROIDS")
 
 states = {
     "Asteroids": Asteroids(DISPLAY_SCREEN),
-    "Frogger": Frogger(DISPLAY_SCREEN)
+    "Frogger": Frogger(DISPLAY_SCREEN)         
     # "Pong": Pong(DISPLAY_SCREEN)
     
 }
