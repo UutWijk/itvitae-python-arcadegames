@@ -33,7 +33,7 @@ states["MENU"] = MainMenu(DISPLAY_SCREEN, games)
 current_state_key = "MENU"
 
 
-while True:
+while True:  
     dt = clock.tick(FPS)/1000 # Gets time since last frame
     current_state = states[current_state_key]
     events = pygame.event.get()
