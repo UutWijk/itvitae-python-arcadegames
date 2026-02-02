@@ -1,7 +1,7 @@
 import pygame
 
 class Player():
-    def __init__(self, x, y, colour, controls, starting_direction):
+    def __init__(self, x, y, colour, player2, starting_direction):
         # Sets the starting position that you put in the init of the player
         self.x = x
         self.y = y
@@ -12,7 +12,7 @@ class Player():
         self.reset() # For resetting position after winning a round
 
         self.colour = colour # Sets the colour of your brick thing
-        self.controls = controls # This will be a dictionary with the WASD keys and the arrow keys {"up": K_w, "down": K_s, etc...}
+        self.player2 = player2
         self.direction = (0,0) # Direction of where the player will go
         self.next_direction = starting_direction # This is for fixing a bug that caused suicide if you pressed directions too fast
         self.trail = [(self.x, self.y)] # Stores the trail of blocks for player
@@ -26,15 +26,25 @@ class Player():
         self.trail = [(self.x, self.y)]
 
     def player_input(self, keys):
-        # This will 'turn' your blockade to the direction you want to go in, while preventing going back into yourself.
-        if keys["up"] and self.direction != (0,1):
-            self.next_direction = (0, -1)
-        elif keys["down"] and self.direction !=(0,-1):
-            self.next_direction = (0, 1)
-        elif keys["left"] and self.direction !=(1,0):
-            self.next_direction = (-1,0)
-        elif keys["right"] and self.direction !=(-1,0):
-            self.next_direction = (1,0)
+        if not self.player2:
+            # This will 'turn' your blockade to the direction you want to go in, while preventing going back into yourself.
+            if keys["up"] and self.direction != (0,1):
+                self.next_direction = (0, -1)
+            elif keys["down"] and self.direction !=(0,-1):
+                self.next_direction = (0, 1)
+            elif keys["left"] and self.direction !=(1,0):
+                self.next_direction = (-1,0)
+            elif keys["right"] and self.direction !=(-1,0):
+                self.next_direction = (1,0)
+        else:
+            if keys["up2"] and self.direction != (0,1):
+                self.next_direction = (0, -1)
+            elif keys["down2"] and self.direction !=(0,-1):
+                self.next_direction = (0, 1)
+            elif keys["left2"] and self.direction !=(1,0):
+                self.next_direction = (-1,0)
+            elif keys["right2"] and self.direction !=(-1,0):
+                self.next_direction = (1,0)
 
     # This handles player movement and block placement
     def move(self):

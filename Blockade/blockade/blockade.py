@@ -27,7 +27,7 @@ OFFSET_Y = (SCREEN_HEIGHT - GRID_HEIGHT) // 2
 
 class Blockade(Game):
     def __init__(self, screen) -> None:
-        super().__init__(screen)
+        super().__init__(screen, True)
         current_dir = os.path.dirname(__file__)
         # Font for the game
         self.FONT = pygame.font.Font(os.path.join(current_dir, "assets/RetroGaming.ttf"), 40)
@@ -48,8 +48,8 @@ class Blockade(Game):
         p2_controls = {"up": pygame.K_UP, "down": pygame.K_DOWN, "left": pygame.K_LEFT, "right": pygame.K_RIGHT}
 
         # Player setup
-        self.player_1 = Player(3,3,"#0099ff", p1_controls, (1,0))
-        self.player_2 = Player(17,17,"#ff6600", p2_controls,(-1,0))
+        self.player_1 = Player(3,3,"#0099ff", False, (1,0))
+        self.player_2 = Player(17,17,"#ff6600", True,(-1,0))
 
         #sound setup
         self.game_sounds = Sound()
@@ -63,7 +63,9 @@ class Blockade(Game):
         self.p1_score = 0
         self.p2_score = 0
         self.winning_score = 3
-        self.reset_timer = 0
+
+        self.game_timer = 0 
+        self.reset_timer = 2 # Time in seconds before the game resets after a win
 
         # By calling these here, the players start moving at the same time on the first round
         self.player_1.reset()
@@ -100,7 +102,6 @@ class Blockade(Game):
     def update(self, dt):
         pressed = self.pressed
         self.timer += dt
-        current_time = pygame.time.get_ticks()
         self.DISPLAY_SCREEN.fill("#19191919")
          
         match_over = self.p1_score >= self.winning_score or self.p2_score >= self.winning_score
@@ -123,7 +124,7 @@ class Blockade(Game):
             self.player_2.player_input(pressed)
 
         # Handles player movement, they move at an interval thats specified earlier in the code (the pygame.time.set_timer)
-            if self.timer > 400:
+            if self.timer > 0.400:
                 self.player_1.move()
                 self.player_2.move()
                 self.timer = 0
@@ -150,26 +151,29 @@ class Blockade(Game):
                             Sound.winround(self.game_sounds)
 
                     if self.p1_score >= self.winning_score:
-                        self.winner_message = "        Game Over!\n       Player 1 WIN\n   Press 'Z' To Reset."
+                        self.winner_message = "        Game Over!\n       Player 1 WIN\n   Press 'A' To Reset."
                         Sound.wingame(self.game_sounds)
                     if self.p2_score >= self.winning_score:
-                        self.winner_message = "        Game Over!\n       Player 2 WIN\n   Press 'Z' To Reset."      
+                        self.winner_message = "        Game Over!\n       Player 2 WIN\n   Press 'A' To Reset."      
                         Sound.wingame(self.game_sounds)          
 
                     # Turns the game inactive and puts up a timer so it doesnt instantly reset               
                     self.game_active = False
-                    reset_timer = current_time + 2000
+                    
 
         # When a player hasnt won yet, resets the board so they players can play again
-        if not self.game_active and current_time > reset_timer:
-            if self.p1_score < self.winning_score and self.p2_score < self.winning_score:
-                self.player_1.reset()
-                self.player_2.reset()
-                self.game_active = True
-                self.winner_message = ""
-                self.waiting_to_start = True
+        if not self.game_active:
+            if self.game_timer > self.reset_timer:
+                self.game_timer = 0
+                if self.p1_score < self.winning_score and self.p2_score < self.winning_score:
+                    self.player_1.reset()
+                    self.player_2.reset()
+                    self.game_active = True
+                    self.winner_message = ""
+                    self.waiting_to_start = True
             else:
-                pass
+                self.game_timer += dt
+
 
         # Draws the grid and the border of the play field
         self.draw_grid()
