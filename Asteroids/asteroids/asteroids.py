@@ -157,11 +157,16 @@ class Asteroids(Game):
             title_rect = title_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 - 100))
             instruction_text = self.font.render("Press A to Start", True, (255, 255, 255))
             instruction_rect = instruction_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 + 100))
+            back_to_menu_text = self.font_small.render("Press B to return to menu", True, (255, 255, 255))
+            back_to_menu_rect = back_to_menu_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 + 165))
             self.screen.blit(title_text, title_rect)
             if pygame.time.get_ticks() // 500 % 2 == 0:
                 self.screen.blit(instruction_text, instruction_rect)
+            self.screen.blit(back_to_menu_text, back_to_menu_rect)
             if self.pressed["a"]:
                 self.reset()
+            if self.pressed["b"]:
+                self.next_state = "MENU"
             return
 
         if self.current_state == "game_over":

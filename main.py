@@ -24,7 +24,9 @@ SCREEN_HEIGHT = 960
 DISPLAY_SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 pygame.display.set_caption("Arcade")
-
+icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "menu_assets", "capgemini_logos", "capgemini_logo_spade.png")
+icon_image = pygame.image.load(icon_path)
+pygame.display.set_icon(icon_image)
 
 # voeg de geimporteerde class toe aan deze dictionary
 states = {
@@ -33,10 +35,10 @@ states = {
     "Pong": Pong,
     "Tetris": Tetris,
     "Frogger": Frogger,
-    "Space-Invaders": SpaceInvaders,
+    "Space Invaders": SpaceInvaders,
 
 }
-games = states.keys()
+games = list(states.keys())
 current_state_key = "MENU"
 current_state = MainMenu(DISPLAY_SCREEN, games)
 
