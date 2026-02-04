@@ -1,20 +1,23 @@
 import os
 import pygame
 import numpy as np
-from typing import TYPE_CHECKING
-from tetromino_generator import TetrominoGenerator
-from tetromino import Tetromino
-import game_state
+from typing import TYPE_CHECKING, Any
+from .tetromino_generator import TetrominoGenerator
+from .tetromino import Tetromino
+from . import game_state
 
+tetris_dir = os.path.dirname(os.path.abspath(__file__))
 
-
-put_piece_down_sound = pygame.mixer.Sound("assets/sounds/put_piece_down.mp3")
-remove_lines_sound = pygame.mixer.Sound("assets/sounds/remove_lines.mp3")
-line_clear_4_sound = pygame.mixer.Sound("assets/sounds/4linesclear.mp3")
+put_piece_down_sound = pygame.mixer.Sound(os.path.join(tetris_dir, "assets", "sounds", "put_piece_down.mp3"))
+remove_lines_sound = pygame.mixer.Sound(os.path.join(tetris_dir, "assets", "sounds", "remove_lines.mp3"))
+line_clear_4_sound = pygame.mixer.Sound(os.path.join(tetris_dir, "assets", "sounds", "4linesclear.mp3"))
 
 class BlockField():
+    """
+    this class defines the playing field and where blocks are placed inside of it
+    """
     def __init__(self):
-        self.grid = np.array([
+        self.defaultgrid = np.array([
     ["", "", "", "", "", "", "", "", "", "", "", "", ""], 
     ["", "", "", "", "", "", "", "", "", "", "", "", ""], 
     ["", "", "", "", "", "", "", "", "", "", "", "", ""], 
@@ -40,19 +43,22 @@ class BlockField():
     ["", "", "", "", "", "", "", "", "", "", "", "", ""], 
     #this field is 3 rows lower & wider than you actually see so that empty bits of pieces don't end up out of range. Left side is handled differently
 ],   dtype='<U2'
-)
+)       
+        self.grid = self.defaultgrid.copy()
+        #generating the field this way makes it easier to empty the field again for a new game
         self.tetromino_generator = TetrominoGenerator()
         self.current_piece: Tetromino = self.tetromino_generator.current_piece
         self.piece_position = [0, 3]
         self.score = 0
         HSfile = open("HighScore.txt")
         self.leaderboard = HSfile.readlines()
-        self.sprite_sheet = pygame.image.load(os.path.join("blocks", "sprites.png")).convert_alpha()
-        self.lines = 0
-        self.level = 0
+        self.sprite_sheet = pygame.image.load(os.path.join(tetris_dir, "assets", "blocks", "sprites.png")).convert_alpha()
+        self.calculate_game_speed()
     
-    def draw(self, surface):
-        pygame.draw.rect(surface, "black", pygame.Rect(0, 0, 330, 660))
+    def draw(self, surface, pos_x, pos_y) -> None:
+        x = pos_x
+        y = pos_y
+        pygame.draw.rect(surface, "black", pygame.Rect(x, y, 330, 660))
 
         playfield = self.get_array()
       
@@ -76,12 +82,14 @@ class BlockField():
 
                     img = self.sprite_sheet.subsurface(sprite_rect)
                     
-                    surface.blit(img, (c * 33, r * 33))
+                    surface.blit(img, (x +3 + (c * 33),y + ( r * 33)))
 
          
 
-    def remove_empty_space(self):
-        #removes empty spaces to left of tetromino 
+    def remove_empty_space(self) ->list[list]: #as drawshape
+        """
+        removes empty spaces to left of tetromino 
+        """
         if self.current_piece == None:
             return
         drawshape = self.current_piece.shape.copy()
@@ -92,16 +100,20 @@ class BlockField():
                 drawshape[i] = self.current_piece.shape[i][abs(self.piece_position[1]):]  
         return drawshape                   
 
-    def put_piece_into_grid(self):
+    def put_piece_into_grid(self) -> bool:
+        """
+        this function places a tetromino into the game board after it has landed and player control transfers to the next tetromino
+        """
         drawshape = self.remove_empty_space()
         self.grid[self.piece_position[0]:self.piece_position[0]+self.current_piece.size, max(self.piece_position[1], 0):self.piece_position[1]+self.current_piece.size] += drawshape
         put_piece_down_sound.play()
         self.remove_full_rows()
+        pygame.time.set_timer(pygame.USEREVENT + 1, int(game_state.timer.speed))
         self.current_piece = self.tetromino_generator.get_new_piece()
         self.piece_position = [0, 3]
-        return self.check_game_over()
+        self.check_game_over()
 
-    def remove_full_rows(self):
+    def remove_full_rows(self) -> None:
         """
         Checks the rows that overlap the piece just puts down.
         If a row is full it shifts the grid above down so the row is removed. 
@@ -125,10 +137,8 @@ class BlockField():
                 line_clear_4_sound.play()
             else:
                 remove_lines_sound.play()
-            self.lines += lines_removed
-            self.level = self.lines // 10
     
-    def update_score(self, lines_removed):
+    def update_score(self, lines_removed) -> None: 
         match lines_removed:
             case 1: score_to_add = 40
             case 2: score_to_add = 100
@@ -138,33 +148,32 @@ class BlockField():
         self.score += score_to_add
         self.calculate_game_speed()
         
-    def calculate_game_speed(self):
+    def calculate_game_speed(self) -> None:
         speed =  1000 / (1 + 0.000065 * self.score ** 1.18)
         game_state.timer.set_speed(int(speed))
-        print(speed)
 
-    def get_array(self):
-        #put the current piece in the array
+    def get_array(self) -> np.ndarray[Any]:
+        """this function returns the a copy of the current grid with the current curent piece put in"""
         new_array = np.array(self.grid)
         drawshape = self.remove_empty_space()    
         #draws piece onto playfield, with max assuring that it will start drawing from the left of the playfield if piece extends beyond this
         new_array[self.piece_position[0]:self.piece_position[0]+self.current_piece.size, max(self.piece_position[1], 0):self.piece_position[1]+self.current_piece.size] += drawshape
         return new_array
     
-    def check_game_over(self):
-        #test if new piece can be placed, otherwise game is over
+    def check_game_over(self) -> bool:
+        """this function checks if a new place can be placed in the game board, and if not the game ends"""
         piece = self.current_piece.shape
         position = self.piece_position
         for r in range(len(piece)):
             for c in range(len(piece[r])):
                 #test if new piece overlaps with existing pieces, and if so signal that the game is over
-                if(piece[r][c] and (self.grid[position[0] + r][position[1] + c])):
+                if(piece[r][c] and (self.grid[position[0] + r][position[1] + c]) and game_state.game_continues == True):
                     self.add_score()
-                    return False
-        return True        
+                    game_state.game_continues = False
+       
     
-    def add_score(self):
-        #add score to leaderboard
+    def add_score(self) -> None:
+        """this function adds the player's score to the leaderboard at the end of a game, provided it is high enough"""
         scores = self.leaderboard
         scoreList = []
 
@@ -172,7 +181,6 @@ class BlockField():
             scoreList.append(int(scores[score]))  
         #self.score = 6001    <- to test if new scores are added to highscore correctly
         newScore = self.score  
-        print(scoreList[9])
         if self.score > scoreList[9]:
             scoreList.append(newScore)
             scoreList.sort(reverse=True)
@@ -184,10 +192,9 @@ class BlockField():
             scorefile = open("HighScore.txt")
             self.leaderboard = scorefile.readlines()    
              
+    def test_below(self) -> bool:
+        """this function tests if a piece can move downwards"""
 
-
-    def test_below(self):
-        #test if piece can move downwards
         piece = self.current_piece.shape
         position = self.piece_position
         for r in range(len(piece)):
@@ -198,8 +205,8 @@ class BlockField():
                     return False
         return True       
 
-    def test_right(self):
-        #test if piece can move to the right
+    def test_right(self) -> bool:
+        """this function texts if a piece can move to the right"""
         piece = self.current_piece.shape
         position = self.piece_position
         for r in range(len(piece)):
@@ -208,8 +215,8 @@ class BlockField():
                     return False
         return True   
     
-    def test_left(self):
-        #test if piece can move to the left
+    def test_left(self) -> bool:
+        """this function tests if a piece can move to the left"""
         piece = self.current_piece.shape
         position = self.piece_position
         for r in range(len(piece)):
@@ -218,15 +225,13 @@ class BlockField():
                     return False
         return True 
 
-
     def move_piece(self, direction):
-        game_continues = True
         if direction == "down":
             can_move = self.test_below()
             if can_move:
                 self.piece_position[0] += 1
             else:
-                game_continues = self.put_piece_into_grid()
+                self.put_piece_into_grid()
 
 
 
@@ -238,11 +243,5 @@ class BlockField():
             can_move = self.test_left()
             if can_move:
                 self.piece_position[1] -= 1
-
-        elif direction == "right" and self.piece_position[1] < 10-(self.current_piece.size):
-            self.piece_position[1] += 1
-        elif direction == "left" and self.piece_position[1] > 0:
-            self.piece_position[1] -= 1
-        return game_continues    
     
 

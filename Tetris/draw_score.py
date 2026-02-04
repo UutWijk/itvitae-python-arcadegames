@@ -1,10 +1,11 @@
 import os
 import pygame
 
-font2 = pygame.font.Font('assets/nintendo-nes-font.ttf', 20)
+tetris_dir = os.path.dirname(os.path.abspath(__file__))
+font2 = pygame.font.Font(os.path.join(tetris_dir, "assets", "nintendo-nes-font.ttf"), 20)
 next_text = font2.render('NEXT', True, 'white')
 
-def draw_array(array, display_surface: pygame.Surface, position):
+def draw_array(array, display_surface: pygame.Surface, position) -> None:
     scoresurface = pygame.Surface((165, 165))
     piece_position_x = 16
     piece_position_y = 33
@@ -19,7 +20,7 @@ def draw_array(array, display_surface: pygame.Surface, position):
          piece_position_x += 15
 
     spritesheet = pygame.image.load(
-        os.path.join("blocks", "sprites.png")
+        os.path.join(tetris_dir, "assets", "blocks", "sprites.png")
     ).convert_alpha()
 
     for r in range(len(array)):
