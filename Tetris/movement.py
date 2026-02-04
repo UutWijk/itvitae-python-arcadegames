@@ -43,7 +43,7 @@ def movement(playfield):
         if pygame.key.get_just_pressed()[pygame.K_LEFT]:
             playfield.move_piece("left")
             move_sound.play()
-            game_state.left_timer = 5
+            game_state.left_timer = 12
         if pygame.key.get_pressed()[pygame.K_LEFT]:  
             if game_state.left_timer == 0:
                 playfield.move_piece("left")
@@ -54,7 +54,7 @@ def movement(playfield):
         if pygame.key.get_just_pressed()[pygame.K_RIGHT]:
             playfield.move_piece("right")
             move_sound.play()
-            game_state.right_timer = 5
+            game_state.right_timer = 12
         if pygame.key.get_pressed()[pygame.K_RIGHT]:  
             if game_state.right_timer == 0:
                 playfield.move_piece("right")
