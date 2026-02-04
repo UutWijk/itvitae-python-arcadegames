@@ -5,12 +5,8 @@ class MenuButton:
         self.text = text
         self.rect = pygame.Rect(x, y, width, height)
         self.font = font
-        self.color = (200, 200, 200)  # Default Gray
+        self.color = (100, 100, 100)  # Default Gray
         
-
-      
-
-
 
     def draw(self, screen):
         # Draw the button rectangle
@@ -21,9 +17,3 @@ class MenuButton:
         text_surf = self.font.render(self.text, True, (0, 0, 0))
         text_rect = text_surf.get_rect(center=self.rect.center)
         screen.blit(text_surf, text_rect)
-
-    def is_clicked(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.rect.collidepoint(event.pos):
-                return True 
-        return False 

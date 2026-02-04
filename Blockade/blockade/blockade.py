@@ -32,6 +32,7 @@ class Blockade(Game):
         # Font for the game
         self.FONT = pygame.font.Font(os.path.join(current_dir, "assets/RetroGaming.ttf"), 40)
         self.FONT_two = pygame.font.Font(os.path.join(current_dir, "assets/RetroGaming.ttf"), 60)
+        self.FONT_tiny = pygame.font.Font(os.path.join(current_dir, "assets/RetroGaming.ttf"), 20)
         # Some game states for pausing after a win etc.
         self.game_active = True
         self.waiting_to_start = True
@@ -40,7 +41,6 @@ class Blockade(Game):
         self.winner_message = ""
         # Screen setup and application window text
         self.DISPLAY_SCREEN = screen
-        pygame.display.set_caption("BLOCKADE")
 
 
         # Player controls setup
@@ -117,6 +117,9 @@ class Blockade(Game):
         # When any player presses a key, the round will start (and both players will start moving in their default direction)
         if self.waiting_to_start == True and any(pressed.values()):
             self.waiting_to_start = False
+
+        if self.just_pressed["b"]:
+            self.next_state = "MENU"
 
         # Handles player input
         if self.game_active and not self.waiting_to_start:
@@ -201,4 +204,6 @@ class Blockade(Game):
         self.DISPLAY_SCREEN.blit(score_surface_p2, (SCREEN_WIDTH //2 + 380, 225))
 
         game_title_message = self.FONT_two.render("B L O C K A D E", True, "#FFFDF7")
+        return_to_menu_message = self.FONT_tiny.render("Press 'B' to return to menu", True, "#FFFDF7")
         self.DISPLAY_SCREEN.blit(game_title_message,(SCREEN_WIDTH // 2 -275, 65))
+        self.DISPLAY_SCREEN.blit(return_to_menu_message, (SCREEN_WIDTH // 2 - 235, SCREEN_HEIGHT - 40))
