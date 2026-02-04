@@ -1,108 +1,118 @@
 import pygame
+# Initialize pygame and sound mixer
+pygame.init()
 pygame.mixer.init()
-from pygame import Color
+import draw_score
+from block_field import BlockField
+import movement
 import ctypes
 import os
 import game_state
+import background
 
-
-
-# Initialize pygame and sound mixer
-pygame.init()
-
-
-playfield : BlockField = None
-
-import movement
 ctypes.windll.user32.SetProcessDPIAware()
-
-import draw_score
-from block_field import BlockField
-
-
 
 # Constants
 FPS = 60
 
-# Screen information
-
+# Display setup
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 960
-
-# Display setup
 DISPLAY_SURFACE = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-background = pygame.image.load(os.path.join('assets', 'textures', 'background.png'))
-background = pygame.transform.scale(background, (1280, 960))
-#background = pygame.transform.scale_by(background, 4)
 
 # text setup
-font = pygame.font.Font('assets/nintendo-nes-font.ttf', 20)
-HSfont = pygame.font.Font('assets/nintendo-nes-font.ttf', 13)
-linesfont = pygame.font.Font('assets/nintendo-nes-font.ttf', 17)
+font = pygame.font.Font("assets/nintendo-nes-font.ttf", 32)
+HSfont = pygame.font.Font("assets/nintendo-nes-font.ttf", 15)
+font40 = pygame.font.Font("assets/nintendo-nes-font.ttf", 40)
+font25 = pygame.font.Font("assets/nintendo-nes-font.ttf", 25)
+font20 = pygame.font.Font("assets/nintendo-nes-font.ttf", 20)
+font15 = pygame.font.Font("assets/nintendo-nes-font.ttf", 15)
+font12 = pygame.font.Font("assets/nintendo-nes-font.ttf", 12)
+font9 = pygame.font.Font("assets/nintendo-nes-font.ttf", 9)
 
-# timer_setup
+
+# timer for the game and the piece movement
 clock = pygame.time.Clock()
 delta = 0
-
-#starts the timer for the movement.py. We can change the speed in the movement.py file
-
 game_state.make_timer()
 
-playfield = BlockField()
-playfield.calculate_game_speed()
+#make a new high score file if it doesnt exist yet
+if not os.path.exists("HighScore.txt"):
+    with open("HighScore.txt", 'w') as file:
+        file.write("0\n0\n0\n0\n0\n0\n0\n0\n0\n0") 
 
-def main():
-    pygame.mixer.music.load("assets/sounds/1 - Music 1.mp3")
-    pygame.mixer.music.play()
+
+def main() -> None:
     global delta
-    game_continues = True
-    if not os.path.exists("HighScore.txt"):
-        with open("HighScore.txt", 'w') as file:
-            file.write("0\n0\n0\n0\n0\n0\n0\n0\n0\n0") 
+    pygame.mixer.music.load("assets/sounds/1 - Music 1.mp3")
+    pygame.mixer.music.play(-1)
+    game_state.game_continues = True
+    playfield = BlockField()
 
-    
 
     while True:
         # clear screen
         DISPLAY_SURFACE.fill('grey')
-        DISPLAY_SURFACE.blit(background)
-        game_continues = movement.movement(playfield, game_continues)
+        movement.movement(playfield)
         scores = playfield.leaderboard
         highScores = ""
         for score in scores:
-            highScores += (str(score) + "\n")
+            highScores += str(score) + "\n"
 
-        game_surface = pygame.Surface((330, 660))
-        playfield.draw(game_surface)
-        game_surface = pygame.transform.scale(game_surface, (405, 694))
-        DISPLAY_SURFACE.blit(game_surface, (475, 167))
+        if game_state.game_continues:
+            background.draw_game_active(DISPLAY_SURFACE)
 
+            playfield.draw(DISPLAY_SURFACE, 472, 104)
 
-        score_text = font.render(f"SCORE\n\n{str(playfield.score)}", True, 'white')
-        HStext = HSfont.render("HIGH SCORES\n\n" + highScores, True, 'white')
-        
-        if game_continues:
-            lines_text = linesfont.render(str(playfield.lines), True, 'white')
-            level_text = linesfont.render(str(playfield.level), True, 'white')
-            # print(str(playfield.score))
+            score_text_introduction = font25.render("SCORE", True, "white")
+            DISPLAY_SURFACE.blit(score_text_introduction, (936, 196))
+
+            score_text = font25.render(str(playfield.score), True, "white")
+            text_rect = score_text.get_rect(center=(1059, 285))
+            DISPLAY_SURFACE.blit(score_text, (text_rect))
+
+            HStext = font12.render(" HIGH\nSCORES:\n\n" + highScores, True, "white")
+            DISPLAY_SURFACE.blit(HStext, (206, 186))
+
+            # draw next piece
+            draw_score.draw_array(
+                playfield.tetromino_generator.next_piece.shape,
+                DISPLAY_SURFACE,
+                (916, 420),
+            )
+
         else:
-            game_over_text = HSfont.render("GAME OVER!\nRETRY: Z OR X", True, 'white', bgcolor='black')
-            DISPLAY_SURFACE.blit(game_over_text, (500, 350))
             game_state.timer.set_start_speed()
+            background.draw_game_over(DISPLAY_SURFACE)
 
-        DISPLAY_SURFACE.blit(score_text, (980, 91))
-        DISPLAY_SURFACE.blit(lines_text, (760, 69))
-        DISPLAY_SURFACE.blit(level_text, (1040, 686))
-        DISPLAY_SURFACE.blit(HStext, (95, 284))
+            game_over = font25.render(" GAME OVER!\nRETRY: Z OR X", True, "white")
+            text_rect = game_over.get_rect(center=(SCREEN_WIDTH / 2, 100))
+            DISPLAY_SURFACE.blit(game_over, (320, 100))
 
-        draw_score.draw_array(playfield.tetromino_generator.next_piece.shape, DISPLAY_SURFACE, (955,407))
+            reached_score_introduction = font12.render("REACHED SCORE:", True, "white")
+            text_rect = reached_score_introduction.get_rect(
+                center=(SCREEN_WIDTH / 2, 335)
+            )
+            DISPLAY_SURFACE.blit(reached_score_introduction, (text_rect))
+
+            reached_score = font20.render(str(playfield.score), True, "white")
+            text_rect = reached_score.get_rect(center=(SCREEN_WIDTH / 2, 380))
+            DISPLAY_SURFACE.blit(reached_score, (text_rect))
+
+            scores = playfield.leaderboard
+            highScores = ""
+            for score in scores[:5]:
+                highScores += str(score) + "\n   "
+
+            HStext = font15.render("HIGH SCORES:\n\n   " + highScores, True, "white")
+            text_rect = HStext.get_rect(center=(SCREEN_WIDTH / 2, 710))
+            DISPLAY_SURFACE.blit(HStext, (text_rect))
+
+            game_state.timer.set_start_speed()
 
         # Display and tick
         pygame.display.update()
-        delta = clock.tick(FPS) / 1000.0 
-        game_state.timer.speed
-
-
+        delta = clock.tick(FPS) / 1000.0
 
 
 if __name__ == "__main__":

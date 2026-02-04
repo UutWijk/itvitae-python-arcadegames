@@ -3,6 +3,7 @@ from pygame.sprite import Sprite, Group
 from menu import MainMenu
 from Asteroids.asteroids.asteroids import Asteroids
 from Blockade.blockade.blockade import Blockade
+from Tetris.tetris import Tetris
 # voeg hier de import toe van de game class die van Game(State) erft
 
 import os
@@ -24,6 +25,7 @@ pygame.display.set_caption("Arcade")
 states = {
     "Asteroids": Asteroids(DISPLAY_SCREEN),
     "Blockade": Blockade(DISPLAY_SCREEN),
+    "Tetris": Tetris(DISPLAY_SCREEN),
 }
 games = states.keys()
 states["MENU"] = MainMenu(DISPLAY_SCREEN, games)
@@ -50,6 +52,7 @@ while True:
             pygame.display.set_caption("Select a game...")
         else:
             pygame.display.set_caption(type(states[new_key]).__name__)
+        pygame.mixer.music.stop()
 
     # update en draw aanroepen voor de huidige state
     current_state.update(dt)
