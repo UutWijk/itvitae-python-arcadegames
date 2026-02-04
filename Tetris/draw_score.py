@@ -20,7 +20,7 @@ def draw_array(array, display_surface: pygame.Surface, position) -> None:
          piece_position_x += 15
 
     spritesheet = pygame.image.load(
-        os.path.join(tetris_dir, "blocks", "sprites.png")
+        os.path.join(tetris_dir, "assets", "blocks", "sprites.png")
     ).convert_alpha()
 
     for r in range(len(array)):

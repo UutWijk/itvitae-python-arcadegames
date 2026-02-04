@@ -52,7 +52,7 @@ class BlockField():
         self.score = 0
         HSfile = open("HighScore.txt")
         self.leaderboard = HSfile.readlines()
-        self.sprite_sheet = pygame.image.load(os.path.join(tetris_dir, "blocks", "sprites.png")).convert_alpha()
+        self.sprite_sheet = pygame.image.load(os.path.join(tetris_dir, "assets", "blocks", "sprites.png")).convert_alpha()
         self.calculate_game_speed()
     
     def draw(self, surface, pos_x, pos_y) -> None:
