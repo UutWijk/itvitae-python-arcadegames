@@ -25,5 +25,5 @@ class MenuButton:
     def is_clicked(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
-                return True
-        return False
+                return True 
+        return False 

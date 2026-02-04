@@ -32,7 +32,7 @@ class State:
         self.pressed = {key: False for key in self.key_map.values()}
         self.just_pressed = {key: False for key in self.key_map.values()}
 
-    # het afhandelen van key press events
+    # het afhandelen van key press events 
     def handle_events(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key in self.key_map:
