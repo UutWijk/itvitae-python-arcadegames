@@ -1,7 +1,7 @@
 import pygame
-from GameObject import GameObject
-from constants import *
-from assets import ufo_sprite, ufo_sound
+from Space_Invaders.GameObject import GameObject
+from Space_Invaders.constants import *
+from Space_Invaders.assets import ufo_sprite, ufo_sound
 from random import randint
 
 class Ufo(GameObject):

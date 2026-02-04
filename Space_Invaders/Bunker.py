@@ -1,7 +1,7 @@
 import pygame
-from GameObject import GameObject
-from assets import bunker_sprite
-from constants import *
+from Space_Invaders.GameObject import GameObject
+from Space_Invaders.assets import bunker_sprite
+from Space_Invaders.constants import *
 
 pygame.init()
 
