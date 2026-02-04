@@ -10,19 +10,24 @@ class Player:
     def __init__(self, location: pygame.Vector2) -> None:
         self.pos = location
         script_dir = os.path.dirname(__file__)
-        if os.name == "posix":
-            self.path = os.path.join("..", "assets", "Frog.png")
-            self.hop_sound_path = os.path.join("..", "assets", "sounds", "Hop.wav")
-        elif os.name == "nt":
-            self.path = os.path.join("assets", "Frog.png")
-            self.hop_sound_path = os.path.join("assets", "sounds", "Hop.wav")
-        else:
-            print("Error with asset loading, please report")
-            sys.exit()
-            # if os.name == "posix":
-            #    self.sprite = pygame.image.load("../assets/Frog.png")
-            # elif os.name == "nt":
-            #    self.sprite = pygame.image.load("..\\assets\\Frog.png")
+        # if os.name == "posix":
+        #    self.path = os.path.join("..", "assets", "Frog.png")
+        #    self.hop_sound_path = os.path.join("..", "assets", "sounds", "Hop.wav")
+        # elif os.name == "nt":
+        #    self.path = os.path.join("assets", "Frog.png")
+        #    self.hop_sound_path = os.path.join("assets", "sounds", "Hop.wav")
+        # else:
+        #    print("Error with asset loading, please report")
+        #    sys.exit()
+        #    # if os.name == "posix":
+        #    #    self.sprite = pygame.image.load("../assets/Frog.png")
+        #    # elif os.name == "nt":
+        #    #    self.sprite = pygame.image.load("..\\assets\\Frog.png")
+        curr_dir = os.path.dirname(__file__)
+        self.path = os.path.join(curr_dir, "..", "assets", "Frog.png")
+        self.hop_sound_path = os.path.join(
+            curr_dir, "..", "assets", "sounds", "Hop.wav"
+        )
         splash_dir = os.path.join(script_dir, "..", "assets", "FrogDrown")
         self.splash_anim = [
             pygame.image.load(os.path.join(splash_dir, "FrogDrown_0001.png")),

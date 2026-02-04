@@ -16,6 +16,8 @@ class Score:
             self.path = os.path.join("..", "assets", "fontPixel.ttf")
         elif os.name == "nt":
             self.path = os.path.join("assets", "fontPixel.ttf")
+        curr_dir = os.path.dirname(__file__)
+        self.path = os.path.join(curr_dir, "..", "assets", "fontPixel.ttf")
 
         self.font = pygame.font.Font(self.path, size=50)
 

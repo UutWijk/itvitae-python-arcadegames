@@ -1,5 +1,6 @@
 import pygame
 import os
+import sys
 import random
 from pygame import Rect, Color
 from constants import TILE_SIZE
@@ -16,6 +17,9 @@ class Car:
         else:
             print("Error with asset loading, please report")
             sys.exit()
+        curr_dir = os.path.dirname(__file__)
+        self.path = os.path.join(curr_dir, "..", "assets", "Car.png")
+        self.path2 = os.path.join(curr_dir, "..", "assets", "Car2.png")
         if random.randint(0, 1) == 0:
             self.sprite = pygame.image.load(self.path2)
         else:
@@ -34,3 +38,4 @@ class Car:
 
     def draw(self, surface: pygame.Surface):
         surface.blit(self.sprite, self.hitbox)
+
