@@ -79,6 +79,7 @@ class Pong(Game):
         
         if self.game_active: 
             if self.just_pressed["b"]:
+                Sound.theme2_stop(self.game_theme)
                 self.next_state = "MENU"
                 
         # Handle Menu Navigation (Press A or B to select options)

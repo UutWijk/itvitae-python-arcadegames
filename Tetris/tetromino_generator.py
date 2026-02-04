@@ -1,9 +1,8 @@
-from tetromino import *
+from .tetromino import *
 import random
-import game_state
 
 class TetrominoGenerator():
-    def __init__(self):
+    def __init__(self) -> None:
         self.tetromino_options = [LinePiece, SquarePiece, TPiece, SPiece, ZPiece, JPiece, LPiece]
         self.color_options = [
                             "a1","a2","a3","a4",
@@ -32,7 +31,7 @@ class TetrominoGenerator():
       
                 
     
-    def get_new_piece(self):
+    def get_new_piece(self) -> Tetromino: #as current_piece
         self.current_piece = self.next_piece
 
         # pick random piece while ensuring there are no duplicates
@@ -46,7 +45,5 @@ class TetrominoGenerator():
             new_color = random.choice(self.color_options)
         
         self.next_piece = new_piece(new_color)
-
-        game_state.timer.update_speed()
 
         return self.current_piece
