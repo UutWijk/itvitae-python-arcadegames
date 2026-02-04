@@ -1,7 +1,7 @@
 import os
 import pygame
-from .log import Log
-from .constants import TILE_SIZE, SCREEN_WIDTH
+from log import Log
+from constants import TILE_SIZE, SCREEN_WIDTH
 
 class WaterLane:
     def __init__(self, y_pos, moving_right, speed, log_count):
@@ -34,8 +34,16 @@ class WaterLane:
         for log in self.logs:
             log.draw(screen)
 
-    def get_log_at_position(self, player_rect):
+    def get_log_at_position(self, player_rect): # Check if player is on a log with sufficient overlap.
+        MIN_OVERLAP = 25  # Require 20px overlap to count as "on log"
+        
         for log in self.logs:
             if player_rect.colliderect(log.rect):
-                return log
+                # Calculate overlap dimensions
+                overlap_width = min(player_rect.right, log.rect.right) - max(player_rect.left, log.rect.left)
+                overlap_height = min(player_rect.bottom, log.rect.bottom) - max(player_rect.top, log.rect.top)
+                
+                # Both dimensions must meet minimum overlap
+                if overlap_width >= MIN_OVERLAP and overlap_height >= MIN_OVERLAP:
+                    return log
         return None

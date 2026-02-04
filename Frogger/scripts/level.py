@@ -1,30 +1,55 @@
 import pygame
 import sys
 import os
-from .car_lane import CarLane
-from .water_lane import WaterLane
-from .player import Player
-from .gameover import GameOver
-from .highscore import HighScore
+from car_lane import CarLane
+from water_lane import WaterLane
+from player import Player
+from gameover import GameOver
+from highscore import HighScore
+from next_level import NextLevel
 import random
-from .constants import SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE
+from constants import SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE
 
 
 class Level:
-    def __init__(self, player: Player, game_over: GameOver, highscore: HighScore = None):
+    def __init__(
+        self,
+        player: Player,
+        game_over: GameOver,
+        highscore: HighScore,
+        nextlevel: NextLevel,
+    ):
         self.player = player
         self.gameover = game_over
         self.highscore = highscore
+        self.nextlevel = nextlevel
         self.startfinish_color = (0, 255, 0)  # green
         self.platform_color = (100, 100, 100)  # grey
 
-        #textures
+        # textures
         script_dir = os.path.dirname(__file__)
-        grass_image_path = os.path.join(script_dir, '..', 'assets', 'Grass.png')
+        grass_image_path = os.path.join(script_dir, "..", "assets", "Grass.png")
         self.grass_image = pygame.image.load(grass_image_path).convert_alpha()
 
-        finish_image_path = os.path.join(script_dir, '..', 'assets', 'Finish.png')
+        finish_image_path = os.path.join(script_dir, "..", "assets", "Finish.png")
         self.finish_image = pygame.image.load(finish_image_path).convert_alpha()
+
+        # sounds
+        self.splash_path = os.path.join(
+            script_dir, "..", "assets", "sounds", "Splash.wav"
+        )
+        self.splash = pygame.Sound(self.splash_path)
+
+        self.car_crash_path = os.path.join(
+            script_dir, "..", "assets", "sounds", "CarCrash.wav"
+        )
+        self.car_crash = pygame.Sound(self.car_crash_path)
+
+        self.music_path = os.path.join(
+            script_dir, "..", "assets", "sounds", "FroggerBGM.wav"
+        )
+        self.music = pygame.mixer.music.load(self.music_path)
+        self.volume = pygame.mixer_music.get_volume()
 
         # self.platforms = []
         # self.platforms.append(pygame.Rect(0, 386, self.screen_width, 64))
@@ -45,13 +70,49 @@ class Level:
         self._on_start_last_frame = False
         self._on_finish_last_frame = False
         self.game_over = False
+        self.dead = False
+        self.dead_timer = 0.0
+        self.transition = True
+        self.first_transition = True
+
+        self.dt = 0.0
 
         self.generate_level(self.player.get_score())
 
+        # self.music.play(loops=-1)
+        # pygame.mixer_music.play(loops=-1)
+
     def update(self, dt):
+        self.dt = dt  # dt is now global
+        old_transition = self.transition
+        self.transition = self.nextlevel.get_transition()
+        if old_transition != self.transition and old_transition:
+            self.generate_level(self.player.get_score())
+        self.player.set_freeze(self.transition)
+        if self.dead:
+            if self.dead_timer < 1:
+                self.dead_timer += dt
+            else:
+                self.dead_timer = 0.0
+                self.dead = False
+                self.player.reset_player()
+            return
         if self.game_over:
+            pygame.mixer_music.stop()
+            self.nextlevel.reset_level()
+            return
+        elif self.transition:
+            pygame.mixer_music.set_volume(0.2)
             return
         else:
+            if self.first_transition:
+                self.first_transition = False
+                pygame.mixer_music.play(loops=-1)
+            self.volume = pygame.mixer_music.get_volume()
+            if self.volume < 1:
+                self.volume += 0.05
+            pygame.mixer_music.set_volume(self.volume)
+            # pygame.mixer_music.set_volume(1)
             # Hier zou je enemies/platform logic updaten
             for car_lane in self.car_lanes:
                 car_lane.update(dt)
@@ -63,15 +124,23 @@ class Level:
             self.check_collisions()
 
             on_start = self.player.rect.colliderect(self.start_zone)
-            if on_start and not self._on_start_last_frame:
-                print("Player on start zone")
+            # if on_start and not self._on_start_last_frame:
+            # print("Player on start zone")
             self._on_start_last_frame = on_start
 
             on_finish = self.player.rect.colliderect(self.finish_zone)
             if on_finish and not self._on_finish_last_frame:
-                print("Finished!")
+                # print("Finished!")
+                # if self.player.get_score() // 14 == 20:
+                #    print("you won")
+                # sould trigger win screen instead
+                #    self.player_death()
+                # else:
+                self.nextlevel.set_transition()
+                self.nextlevel.increase_level()
                 self.player.reset_player()
-                self.generate_level(self.player.get_score())
+                # self.generate_level(self.player.get_score())
+                # This line has been moved to the top of the update method, so that the level gets generated without the player seeing it.
             self._on_finish_last_frame = on_finish
 
     def clear_lanes(self):
@@ -82,13 +151,18 @@ class Level:
         self.clear_lanes()
 
         # increase car speed
-        CarLane.speed = 200 + score
+        CarLane.speed = 200 + self.nextlevel.get_level() * 14
 
         # load new lanes
         # every {lane_count_scaling} score add 1 water or car lane
-        open_lanes = list(range(TILE_SIZE, SCREEN_HEIGHT - TILE_SIZE, TILE_SIZE))
-        level_difficulty = 200 + score
+        open_lanes = list(range(TILE_SIZE, SCREEN_HEIGHT - TILE_SIZE * 3, TILE_SIZE))
         lane_count_scaling = 50
+        level_difficulty = 200 + self.nextlevel.get_level() * 14 - lane_count_scaling
+
+        # always fill third lane
+        self.generate_lane(SCREEN_HEIGHT - TILE_SIZE * 3)
+
+        # randomly fill other lanes
         while (
             level_difficulty > random.randint(0, lane_count_scaling)
             and len(open_lanes) >= 1
@@ -145,12 +219,10 @@ class Level:
 
         # print(f"on_water: {on_water}, on_log: {on_log}")  # DEBUG
         if on_water and not on_log:
-            print("Player drowned!")
-            final_score = self.player.get_score()
-            # self.player.reset_after_death()
-            self.set_game_over(final_score)
-            self.player.set_game_over()
-            self.gameover.set_game_over()
+            # print("Player drowned!")
+            self.player_death()
+            self.player.set_dying_type("splash")
+            self.splash.play()
 
     def check_collisions(self):
         if self.game_over:
@@ -161,15 +233,26 @@ class Level:
                 != -1
             ):
                 # hit car code
-                print("Player hit by car!")
-                final_score = self.player.get_score()
-                # self.player.reset_after_death()
-                self.set_game_over(final_score)
-                self.player.set_game_over()
-                self.gameover.set_game_over()
+                # print("Player hit by car!")
+                self.player_death()
+                self.player.set_dying_type("crash")
+                self.car_crash.play()
+
+    def player_death(self):
+        self.player.lose_live()
+        if self.player.get_lives() <= 0:
+            # print("game over")
+            final_score = self.player.get_score()
+            self.set_game_over(final_score)
+            self.player.set_game_over()
+            self.gameover.set_game_over()
+        else:
+            # print(f"lives left: {self.player.get_lives()}")
+            self.dead = True
+            # self.player.reset_player()
 
     def draw(self, screen):
-        #grass
+        # grass
         self.draw_grass(screen)
 
         # Start/Finish zones
@@ -198,7 +281,9 @@ class Level:
         #
 
     def draw_grass(self, screen):
-        for y in range(self.finish_image.get_height(), SCREEN_HEIGHT, self.grass_image.get_height()):
+        for y in range(
+            self.finish_image.get_height(), SCREEN_HEIGHT, self.grass_image.get_height()
+        ):
             for x in range(0, SCREEN_WIDTH, self.grass_image.get_width()):
                 screen.blit(self.grass_image, (x, y))
 
@@ -206,14 +291,17 @@ class Level:
         self.game_over = True
         if self.highscore:
             new_hs = self.highscore.update(final_score)
-            if new_hs:
-                print(f"New High Score: {final_score}!")
+            # if new_hs:
+            # print(f"New High Score: {final_score}!")
 
     def restart(self):
         self.game_over = False
+        self.transition = True
+        self.nextlevel.set_transition()
+        self.nextlevel.reset_level()
         self.player.reset_after_death()
         self.gameover.reset()
         self._on_start_last_frame = False
         self._on_finish_last_frame = False
         self.generate_level(self.player.get_score())
-
+        self.first_transition = True

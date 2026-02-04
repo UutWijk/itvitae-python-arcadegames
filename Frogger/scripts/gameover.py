@@ -2,21 +2,24 @@ import pygame
 import sys
 import os
 
-from .player import Player
-from .highscore import HighScore
-from .constants import SCREEN_WIDTH, SCREEN_HEIGHT
+from player import Player
+from highscore import HighScore
+from constants import SCREEN_WIDTH, SCREEN_HEIGHT
 
 
 class GameOver:
     def __init__(self, player: Player, highscore: HighScore):
-        current_dir = os.path.dirname(os.path.abspath(__file__))
         if os.name == "nt":
-            self.path_game_over = os.path.join(current_dir, "..", "assets", "Gameover.png")
-            self.path_score = os.path.join(current_dir, "..", "assets", "Score.png")
-            self.path_press_space = os.path.join(current_dir, "..", "assets", "PressSpace.png")
-            self.path_press_a = os.path.join(current_dir, "..", "assets", "PressA.png")
-            self.path_font = os.path.join(current_dir, "..", "assets", "fontPixel.ttf")
+            self.path_game_over = os.path.join("assets", "Gameover.png")
+            self.path_score = os.path.join("assets", "Score.png")
+            self.path_press_space = os.path.join("assets", "PressSpace.png")
+            self.path_press_a = os.path.join("assets", "PressA.png")
+            self.path_font = os.path.join("assets", "fontPixel.ttf")
             self.font = pygame.Font(self.path_font, size=120)
+            self.game_over_sound_path = os.path.join("assets", "sounds", "GameOver.wav")
+            self.item_sound_path = os.path.join(
+                "assets", "sounds", "GameOverItemAppear.wav"
+            )
         elif os.name == "posix":
             try:
                 self.path_game_over = os.path.join("..", "assets", "Gameover.png")
@@ -25,6 +28,12 @@ class GameOver:
                 self.path_press_a = os.path.join("..", "assets", "PressA.png")
                 self.path_font = os.path.join("..", "assets", "fontPixel.ttf")
                 self.font = pygame.Font(self.path_font, size=120)
+                self.game_over_sound_path = os.path.join(
+                    "..", "assets", "sounds", "GameOver.wav"
+                )
+                self.item_sound_path = os.path.join(
+                    "..", "assets", "sounds", "GameOverItemAppear.wav"
+                )
             except FileNotFoundError:
                 try:
                     self.path_game_over = os.path.join("assets", "Gameover.png")
@@ -38,7 +47,7 @@ class GameOver:
                     sys.exit()
         self.image_game_over = pygame.image.load(self.path_game_over)
         self.image_score = pygame.image.load(self.path_score)
-        self.image_press_space = pygame.image.load(self.path_press_space)
+        self.image_press_space = pygame.image.load(self.path_press_a)
         self.image_press_a = pygame.image.load(self.path_press_a)
         self.rect = self.image_game_over.get_rect()
         self.game_over = False
@@ -49,13 +58,24 @@ class GameOver:
         self.highscore = highscore
         self.n_points = self.player.get_score()
 
+        self.game_over_sound = pygame.Sound(self.game_over_sound_path)
+        self.item_sound = pygame.Sound(self.item_sound_path)
+
+        self.game_over_sound_played = False
+        self.score_sound_played = False
+        self.press_key_sound_played = False
+
     def set_game_over(self):
         self.game_over = True
+        # self.game_over_sound.play()
 
     def reset(self):
         self.game_over = False
         self.curtain = 0
         self.timer = 0
+        self.game_over_sound_played = False
+        self.score_sound_played = False
+        self.press_key_sound_played = False
 
     def update(self, dt: float):
         if self.game_over:
@@ -75,12 +95,21 @@ class GameOver:
                 self.curtainRect = pygame.Rect((0, 0), (SCREEN_WIDTH, self.curtain))
             pygame.draw.rect(screen, "black", self.curtainRect)
             if self.curtain > SCREEN_HEIGHT:
+                if not self.game_over_sound_played:
+                    self.item_sound.play()
+                    self.game_over_sound_played = True
                 screen.blit(self.image_game_over, self.rect)
                 if self.timer > 1.5:
+                    if not self.score_sound_played:
+                        self.item_sound.play()
+                        self.score_sound_played = True
                     screen.blit(self.image_score, self.image_score.get_rect())
                     screen.blit(score_surf, (680, 375))
                     screen.blit(hiscore_surf, (680, 525))
                 if self.timer > 2 and int(self.timer) < self.timer - 0.4:
+                    if not self.press_key_sound_played:
+                        self.item_sound.play()
+                        self.press_key_sound_played = True
                     screen.blit(
                         self.image_press_space, self.image_press_space.get_rect()
                     )

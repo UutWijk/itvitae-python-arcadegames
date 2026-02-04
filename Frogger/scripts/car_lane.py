@@ -1,8 +1,8 @@
 import pygame
 import random
 import os
-from .car import Car
-from .constants import SCREEN_WIDTH
+from car import Car
+from constants import SCREEN_WIDTH
 
 class CarLane:
     speed = 200.0
