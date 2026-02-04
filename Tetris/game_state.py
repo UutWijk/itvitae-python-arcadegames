@@ -6,6 +6,14 @@ class game_continues:
     def __init__(self) -> None:
         self.game_continues = True        
 
+class left_timer:
+    def __init__(self) -> None:
+        self.left_timer = 5
+
+class right_timer:
+    def __init__(self) -> None:
+        self.right_timer = 5        
+
 class Timer:
     def __init__(self) -> None:
         self.speed = 1000
