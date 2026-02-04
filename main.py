@@ -17,7 +17,7 @@ SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 960
 DISPLAY_SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-pygame.display.set_caption("Arcade Games")
+pygame.display.set_caption("Arcade")
 
 
 # voeg de geimporteerde class toe aan deze dictionary
@@ -46,6 +46,10 @@ while True:
         new_key = current_state.next_state
         current_state.next_state = None 
         current_state_key = new_key
+        if new_key == "MENU":
+            pygame.display.set_caption("Select a game...")
+        else:
+            pygame.display.set_caption(type(states[new_key]).__name__)
 
     # update en draw aanroepen voor de huidige state
     current_state.update(dt)

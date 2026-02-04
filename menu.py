@@ -20,19 +20,37 @@ class MainMenu(State):
             pos_y = start_y + (index * (button_h + spacing))
             new_button = MenuButton(name, start_x, pos_y, 200, button_h, self.font)
             self.buttons.append(new_button)
-
-    def handle_events(self, event):
-        for button in self.buttons:
-                if button.is_clicked(event):
-                    # Trigger the state change using the button's text
-                    self.next_state = button.text
+        
+        self.current_index = 0
 
     def update(self, dt):
-        pass
+        self.switch_button()
+        if self.just_pressed["a"]:
+            self.next_state = self.buttons[self.current_index].text
+
 
     def draw(self):
         self.screen.fill((255, 255, 255))
-        for button in self.buttons:
+        for index, button in enumerate(self.buttons):
+            if index == self.current_index:
+                button.color = (200, 200, 200)
+            else:
+                button.color = (100, 100, 100)
             button.draw(self.screen)
 
         
+
+    def switch_button(self):
+        if self.just_pressed["up"]:
+            if self.current_index == 0:
+                self.current_index = len(self.buttons) - 1
+            else:
+                self.current_index -= 1
+        if self.just_pressed["down"]:
+            if self.current_index == len(self.buttons) - 1:
+                self.current_index = 0
+            else:
+                self.current_index += 1
+            
+                
+
