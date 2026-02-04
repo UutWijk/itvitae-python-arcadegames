@@ -1,7 +1,7 @@
 import pygame
-from GameObject import GameObject
-from constants import *
-from assets import enemy_bullet_sprite
+from Space_Invaders.GameObject import GameObject
+from Space_Invaders.constants import *
+from Space_Invaders.assets import enemy_bullet_sprite
 
 class Bullet(GameObject):
     def __init__(self, type:str, pos:tuple, speed:int):

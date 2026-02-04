@@ -1,7 +1,7 @@
 import pygame
 import os
-from constants import *
-from assets import player_sprite
+from Space_Invaders.constants import *
+from Space_Invaders.assets import player_sprite
 
 HIGHSCORE_FILE = os.path.join(os.path.dirname(__file__), "High-Score.txt") # path to local file that has the high-score
 
@@ -88,6 +88,7 @@ def update_highscore(score): # update the high-score file with the new high-scor
 
 #Main Menu UI
 def main_menu_screen(surface: pygame.Surface):
+    surface.fill(BLACK)
 
     title = retro_font_large.render("SPACE INVADERS", True, WHITE)
     subtitle = retro_font_small.render("move joystick LEFT or RIGHT to move, press 'A' to shoot!", True, WHITE)     # A = Space, joystick = arrow keys

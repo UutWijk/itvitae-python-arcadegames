@@ -1,10 +1,10 @@
 import pygame
-from GameObject import GameObject
+from Space_Invaders.GameObject import GameObject
 from pygame.locals import K_LEFT,K_RIGHT
-from constants import *
+from Space_Invaders.constants import *
 # from animated import AnimatedSprite
-from assets import player_sprite, player_shoot_sound, player_hit_sound, player_dead
-from Bullet import Bullet
+from Space_Invaders.assets import player_sprite, player_shoot_sound, player_hit_sound, player_dead
+from Space_Invaders.Bullet import Bullet
 
 clock = pygame.time.Clock()
 
