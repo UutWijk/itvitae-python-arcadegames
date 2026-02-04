@@ -1,8 +1,8 @@
 import pygame
-from constants import *
-from GameObject import GameObject
-from assets import first_alien_sprite, first_alien_sprite_2, second_alien_sprite, second_alien_sprite_2, third_alien_sprite, third_alien_sprite_2, alien_hit_sound, alien_move_sound
-from Bullet import Bullet
+from Space_Invaders.constants import *
+from Space_Invaders.GameObject import GameObject
+from Space_Invaders.assets import first_alien_sprite, first_alien_sprite_2, second_alien_sprite, second_alien_sprite_2, third_alien_sprite, third_alien_sprite_2, alien_hit_sound, alien_move_sound
+from Space_Invaders.Bullet import Bullet
 from random import randint
 
 class Enemy:

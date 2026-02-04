@@ -5,6 +5,7 @@ from Asteroids.asteroids.asteroids import Asteroids
 from Blockade.blockade.blockade import Blockade
 from Tetris.tetris import Tetris
 from Pong.src.game import Pong
+from Space_Invaders.space_invaders import SpaceInvaders
 # voeg hier de import toe van de game class die van Game(State) erft
 
 import os
@@ -28,6 +29,7 @@ states = {
     "Blockade": Blockade,
     "Pong": Pong,
     "Tetris": Tetris,
+    "Space-Invaders": SpaceInvaders,
 }
 games = states.keys()
 current_state_key = "MENU"
