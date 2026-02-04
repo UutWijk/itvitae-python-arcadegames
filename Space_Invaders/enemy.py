@@ -1,7 +1,7 @@
 import pygame
 from constants import *
 from GameObject import GameObject
-from assets import first_alien_sprite, second_alien_sprite, third_alien_sprite, alien_hit_sound, alien_move_sound
+from assets import first_alien_sprite, first_alien_sprite_2, second_alien_sprite, second_alien_sprite_2, third_alien_sprite, third_alien_sprite_2, alien_hit_sound, alien_move_sound
 from Bullet import Bullet
 from random import randint
 
@@ -12,24 +12,34 @@ class Enemy:
         #set enemy type based on the row
         if row == 0:
             self.type = 3
-            sprite = third_alien_sprite
+            self.sprite = third_alien_sprite
+            self.sprite2 = third_alien_sprite_2
         elif row <= 2:
             self.type = 2
-            sprite = second_alien_sprite
+            self.sprite = second_alien_sprite
+            self.sprite2 = second_alien_sprite_2
         else:
             self.type = 1
-            sprite = first_alien_sprite
+            self.sprite = first_alien_sprite
+            self.sprite2 = first_alien_sprite_2
 
         #Create the enemy
-        self.image = pygame.image.load(sprite)
+        self.image = pygame.image.load(self.sprite)
+        self.image = pygame.transform.scale_by(self.image, GAME_SCALE)
         self.rect = self.image.get_rect(left=x,top=y)
+        self.move_counter = 0
 
     #Move the enemy object
     def move(self, x: int, y: int):
         self.rect.move_ip(x, y)
+        self.move_counter += 1
 
     #Draw the enemy on the screen
     def draw(self, surface: pygame.Surface):
+        if self.move_counter%2 == 0:
+            self.image = pygame.image.load(self.sprite2)
+        else:
+            self.image = pygame.image.load(self.sprite)
         surface.blit(self.image, self.rect)
 
 class EnemiesContainer(GameObject):
@@ -40,16 +50,16 @@ class EnemiesContainer(GameObject):
         self.enemies_total = self.rows * self.columns
 
         #Amount of space reserved for each enemy
-        self.enemy_spacing = 60
+        self.enemy_spacing = 60 * GAME_SCALE
 
         #Set the start location of the enemies
-        self.left = 200
-        self.top = 50
+        self.left = 200 * GAME_SCALE
+        self.top = 50 * GAME_SCALE
 
         #Amount the movement delay and speed
-        self.speed_start = 15
+        self.speed_start = 15 * GAME_SCALE
         self.interval_start = 1 / 60 * self.enemies_total #In the original game, 1 enemy move per frame at 60fps
-        self.speed_down = 40 # how much the enemies move down each time they reach the edge
+        self.speed_down = 40 * GAME_SCALE # how much the enemies move down each time they reach the edge
 
         #Used for a delay between move sounds
         self.move_skips = 0
@@ -62,6 +72,10 @@ class EnemiesContainer(GameObject):
 
         #Create the starting enemies
         self.create_enemies()
+
+        # to keep track of what wave of enemies we are in
+        self.new_wave = False
+        self.current_wave = 1
 
     #Create all enemies
     def create_enemies(self):
@@ -134,10 +148,6 @@ class EnemiesContainer(GameObject):
             for enemy in self.enemies:
                 enemy.move(delta_x, delta_y)
 
-            #if the enemies get too low trigger a game over
-            if self.rect.bottom <= 50:
-                pass #game over
-
             #Reset movement timer
             self.timer_move = 0.0
 
@@ -145,39 +155,6 @@ class EnemiesContainer(GameObject):
     def draw(self, surface: pygame.Surface):
         for enemy in self.enemies:
             enemy.draw(surface)
-
-    #Handle collision between enemies and bullet
-    def bullet_collision(self, bullet: Bullet) -> int:
-
-        #Check if a player's bullet collides with an enemy
-        enemy = None
-        if bullet.type == "player":
-            enemy = bullet.rect.collideobjects(self.enemies)
-
-        if enemy:
-            #Increment score based on enemy type
-            score = enemy.type * 10
-
-            #Delete the enemy that was hit
-            self.enemies.remove(enemy)
-            alien_hit_sound.play()
-            self.enemies_current -= 1
-
-            #Respawn all enemies if the last one died, enemies spawn lower on the screen every time
-            if self.enemies_current <= 0:
-                if self.top < 210: self.top += 20
-                self.create_enemies()
-                self.move_skips = 0
-
-            else:
-                #Resize the container if required
-                self.set_container_size()
-
-                #Decrease the movement delay of the remaining enemies
-                self.interval_move = self.interval_start * (self.enemies_current /self.enemies_total)
-            
-        #return the score gained from killing an enemy
-            return score
         
     #Set the container to the smallest size that contains all (remaining) enemies
     def set_container_size(self):
@@ -215,6 +192,51 @@ class EnemiesContainer(GameObject):
                 
                 #Fire bullet from a random enemies' position
                 enemy = self.enemies[randint(0, self.enemies_current - 1)]
-                speed = 270 if len(self.enemies) > 8 else 340
+                speed = 270 * GAME_SCALE if len(self.enemies) > 8 else 340 * GAME_SCALE
                 return Bullet("enemy", enemy.rect.center, speed)
                 
+   #Handle collision between enemies and bullet
+    def bullet_collision(self, bullet: Bullet) -> int:
+
+        #Check if a player's bullet collides with an enemy
+        enemy = None
+        if bullet.type == "player":
+            enemy = bullet.rect.collideobjects(self.enemies)
+
+        if enemy:
+            #Increment score based on enemy type
+            score = enemy.type * 10
+
+            #Delete the enemy that was hit
+            self.enemies.remove(enemy)
+            alien_hit_sound.play()
+            self.enemies_current -= 1
+
+            #Respawn all enemies if the last one died, enemies spawn lower on the screen every time
+            if self.enemies_current <= 0:
+                if self.top < 210 * GAME_SCALE: self.top += 20 * GAME_SCALE
+                self.create_enemies()
+                self.new_wave = True
+                self.current_wave += 1
+                self.move_skips = 0
+
+            else:
+                #Resize the container if required
+                self.set_container_size()
+
+                #Decrease the movement delay of the remaining enemies
+                self.interval_move = self.interval_start * (self.enemies_current /self.enemies_total)
+            
+        #return the score gained from killing an enemy
+            return score
+
+    #Handle collision between enemies and bunkers
+    def bunker_collision(self, bunkers: list[GameObject]):
+        for bunker in bunkers:
+            if bunker.rect.collideobjects(self.enemies):
+                bunker.dead = True
+
+    #If enemies reach player y level, set lives to 0 (game over)
+    def player_collision(self, player: GameObject):
+        if self.rect.bottom >= player.rect.top:
+            player.killed(0)
