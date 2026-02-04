@@ -1,6 +1,6 @@
 import pygame
 import os
-from constants import SCREEN_WIDTH
+from .constants import SCREEN_WIDTH
 
 class Log:
     def __init__(self, x, y):

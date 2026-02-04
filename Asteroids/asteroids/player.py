@@ -28,7 +28,7 @@ class Player(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image_default)
         self.rect.center = (screenwidth // 2, screenheight // 2)
         self.angle = 0
-        self.shoot_delay = 0.25 #seconds between shots
+        self.shoot_delay = 0.2 #seconds between shots
         self.time_since_last_shot = 0
 
         self.pos = pygame.Vector2(self.rect.center)        
@@ -54,18 +54,18 @@ class Player(pygame.sprite.Sprite):
         self.invincible_timer = 0.0
 
 
-    def update(self, dt):
+    def update(self, dt, pressed, just_pressed):
+        
         # 2. Handle Rotation Input
         rotation_speed = 270
-        pressed_keys = pygame.key.get_pressed()
         if self.lives > 0 and not self.respawning:
-            if pressed_keys[pygame.K_LEFT]:
+            if pressed["left"]:
                 self.angle += rotation_speed * dt
-            if pressed_keys[pygame.K_RIGHT]:
+            if pressed["right"]:
                 self.angle -= rotation_speed * dt
         # 3. Determine base image (Animation) and apply rotation
         # Use a local variable so we don't destroy our source images
-            if pressed_keys[pygame.K_UP]:
+            if pressed["up"]:
                 self.animation_timer += 1
                 # Toggle between default and boosting for a flicker effect
                 base_surf = self.image_boosting if (self.animation_timer // 5) % 2 == 0 else self.image_default
@@ -117,14 +117,13 @@ class Player(pygame.sprite.Sprite):
         self.rect.center = self.pos
 
         self.time_since_last_shot += dt
-        if pressed_keys[pygame.K_SPACE]:
+        if just_pressed["a"]:
             self.shoot()
 
         
     def draw(self,surface):
         surface.blit(self.image, self.rect)
-        if self.respawning:
-            
+        if self.respawning:            
             for beam in self.beams.values():
                 surface.blit(beam["image"], beam["rect"])
             
@@ -187,14 +186,15 @@ class Player(pygame.sprite.Sprite):
 
 
     def respawn(self):
-        self.respawning = False
-        self.respawn_timer = 0.0
-        self.invincible = True
-        self.invincible_timer = self.invincible_duration
-        self.pos.x = self.screenwidth // 2
-        self.pos.y = self.screenheight // 2
-        self.vel_x = 0
-        self.vel_y = 0
+        if self.lives > 0:
+            self.respawning = False
+            self.respawn_timer = 0.0
+            self.invincible = True
+            self.invincible_timer = self.invincible_duration
+            self.pos.x = self.screenwidth // 2
+            self.pos.y = self.screenheight // 2
+            self.vel_x = 0
+            self.vel_y = 0
 
     def add_score(self, points):
         self.score += points

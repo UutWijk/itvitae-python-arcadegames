@@ -1,7 +1,7 @@
 import pygame
 import os
 import sys
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE
+from .constants import SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE
 
 pygame.init()
 
@@ -9,10 +9,11 @@ pygame.init()
 class Player:
     def __init__(self, location: pygame.Vector2) -> None:
         self.pos = location
+        current_dir = os.path.dirname(os.path.abspath(__file__))
         if os.name == "posix":
             self.path = os.path.join("..", "assets", "Frog.png")
         elif os.name == "nt":
-            self.path = os.path.join("assets", "Frog.png")
+            self.path = os.path.join(current_dir, "..", "assets", "Frog.png")
         else:
             print("Error with asset loading, please report")
             sys.exit()

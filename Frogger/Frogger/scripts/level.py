@@ -1,13 +1,13 @@
 import pygame
 import sys
 import os
-from car_lane import CarLane
-from water_lane import WaterLane
-from player import Player
-from gameover import GameOver
-from highscore import HighScore
+from .car_lane import CarLane
+from .water_lane import WaterLane
+from .player import Player
+from .gameover import GameOver
+from .highscore import HighScore
 import random
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE
+from .constants import SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE
 
 
 class Level:
