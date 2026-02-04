@@ -21,7 +21,7 @@ deze loop wordt al afgehandeld in de main van het gehele programma (zie main.py)
 
 Het is de bedoeling om jullie main file om te zetten in een class die erft van de class Game(State). Vernoem deze class naar jullie game
 
-```python voorbeeld4
+```python voorbeeld
 from game import Game
 
 def SpaceInvaders(Game):
