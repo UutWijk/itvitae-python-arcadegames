@@ -1,14 +1,14 @@
 import pygame
 import sys
 import os
-from car_lane import CarLane
-from water_lane import WaterLane
-from player import Player
-from gameover import GameOver
-from highscore import HighScore
-from next_level import NextLevel
+from Frogger.scripts.car_lane import CarLane
+from Frogger.scripts.water_lane import WaterLane
+from Frogger.scripts.player import Player
+from Frogger.scripts.gameover import GameOver
+from Frogger.scripts.highscore import HighScore
+from Frogger.scripts.next_level import NextLevel
 import random
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE
+from Frogger.scripts.constants import SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE
 
 
 class Level:

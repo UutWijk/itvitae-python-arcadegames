@@ -1,7 +1,12 @@
 import pygame
 import os
 import sys
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE, DEVELOPMENT_MODE
+from Frogger.scripts.constants import (
+    SCREEN_WIDTH,
+    SCREEN_HEIGHT,
+    TILE_SIZE,
+    DEVELOPMENT_MODE,
+)
 
 pygame.init()
 
@@ -75,25 +80,25 @@ class Player:
             return
         else:
             keys = pygame.key.get_just_pressed()  # input handling happens within the update function for now. We could implement an input handling script later and pass it as a parameter.
-            if keys[pygame.K_w]:
+            if keys[pygame.K_UP]:
                 self.pos.y -= TILE_SIZE
                 self.rot_sprite = pygame.transform.rotate(self.sprite, 0)
                 self.hop_sound.play()
                 self._score_multiplier += 0.1
-            if keys[pygame.K_s]:
+            if keys[pygame.K_DOWN]:
                 self.rot_sprite = pygame.transform.rotate(self.sprite, 180)
                 self.pos.y += TILE_SIZE
                 if self.pos.y > SCREEN_HEIGHT - self.rect.width:
                     self.pos.y -= TILE_SIZE
                 self._score_multiplier = 1.0
                 self.hop_sound.play()
-            if keys[pygame.K_a]:
+            if keys[pygame.K_LEFT]:
                 self.rot_sprite = pygame.transform.rotate(self.sprite, 90)
                 self.pos.x -= TILE_SIZE
                 if self.pos.x < 0:
                     self.pos.x += TILE_SIZE
                 self.hop_sound.play()
-            if keys[pygame.K_d]:
+            if keys[pygame.K_RIGHT]:
                 self.rot_sprite = pygame.transform.rotate(self.sprite, -90)
                 self.pos.x += TILE_SIZE
                 if self.pos.x > SCREEN_WIDTH - self.rect.width:

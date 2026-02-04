@@ -1,79 +1,67 @@
 import pygame
 import sys
 import os
-from player import Player
-from level import Level
-from score import Score
-from gameover import GameOver
-from highscore import HighScore
-from next_level import NextLevel
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE
-from lives_counter import LivesCounter
-from ...game import Game
+from .player import Player
+from .level import Level
+from .score import Score
+from .gameover import GameOver
+from .highscore import HighScore
+from .next_level import NextLevel
+from .constants import SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE
+from .lives_counter import LivesCounter
+from game import Game
 
 
-pygame.init()
-FPS = 60
-# SCREENX = 1280
-# SCREENY = 960
-SCREEN_RES = pygame.Vector2(SCREEN_WIDTH, SCREEN_HEIGHT)  # Screen resolution
-screen = pygame.display.set_mode(SCREEN_RES)
-pygame.display.set_caption("Frogger")
-clock = pygame.time.Clock()
+class Frogger(Game):
+    def __init__(self, screen):
+        super().__init__(screen)
+        self.FPS = 60
+        # SCREENX = 1280
+        # SCREENY = 960
+        # SCREEN_RES = pygame.Vector2(SCREEN_WIDTH, SCREEN_HEIGHT)  # Screen resolution
+        self.screen = screen
+        # pygame.display.set_caption("Frogger")
+        self.clock = pygame.time.Clock()
 
-player = Player(
-    pygame.Vector2(SCREEN_WIDTH / 2 - TILE_SIZE / 2, SCREEN_HEIGHT - TILE_SIZE)
-)  # location is defined in a not-so-neat manner, subject to change. Player starts out in the bottom-middle of the screen.
-highscore = HighScore()
-score = Score(player, highscore)
-lives_counter = LivesCounter(player)
+        self.player = Player(
+            pygame.Vector2(SCREEN_WIDTH / 2 - TILE_SIZE / 2, SCREEN_HEIGHT - TILE_SIZE)
+        )  # location is defined in a not-so-neat manner, subject to change. Player starts out in the bottom-middle of the screen.
+        self.highscore = HighScore()
+        self.score = Score(self.player, self.highscore)
+        self.lives_counter = LivesCounter(self.player)
 
-nextlevel = NextLevel()
+        self.nextlevel = NextLevel()
 
+        self.game_over = GameOver(self.player, self.highscore)
 
-game_over = GameOver(player, highscore)
+        self.level = Level(self.player, self.game_over, self.highscore, self.nextlevel)
 
-level = Level(player, game_over, highscore, nextlevel)
-
-
-def main():
-    dt = 0.0  # delta time
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-                # if event.type == pygame.KEYDOWN:
-                #    if event.key == pygame.K_SPACE and game_over.game_over:
-                #        level.restart()
-                #        score.reset()
+    def update(self, dt):
+        # if event.type == pygame.KEYDOWN:
+        #    if event.key == pygame.K_SPACE and game_over.game_over:
+        #        level.restart()
+        #        score.reset()
 
         keys = pygame.key.get_just_pressed()
-        if keys[pygame.K_SPACE] and level.game_over:
-            level.restart()
-            score.reset()
-        if keys[pygame.K_ESCAPE] and level.game_over:
-            # self.next_state = "MENU"
+        if keys[pygame.K_a] and self.level.game_over:
+            self.level.restart()
+            self.score.reset()
+        if keys[pygame.K_b] and self.level.game_over:
+            self.next_state = "MENU"
             pass
 
-        level.update(dt)
-        player.update(dt)
-        score.update(dt)
-        game_over.update(dt)
-        nextlevel.update(dt)
+        self.level.update(dt)
+        self.player.update(dt)
+        self.score.update(dt)
+        self.game_over.update(dt)
+        self.nextlevel.update(dt)
 
-        level.draw(screen)
-        player.draw(screen)
-        score.draw(screen)
-        lives_counter.draw(screen)
-        game_over.draw(screen)
-        nextlevel.draw(screen)
+        # dt = self.clock.tick(self.FPS) / 1000  # delta time
 
-        pygame.display.update()
-        dt = clock.tick(FPS) / 1000  # delta time
-
-
-if __name__ == "__main__":
-    main()
+    def draw(self):
+        self.level.draw(self.screen)
+        self.player.draw(self.screen)
+        self.score.draw(self.screen)
+        self.lives_counter.draw(self.screen)
+        self.game_over.draw(self.screen)
+        self.nextlevel.draw(self.screen)

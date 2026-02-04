@@ -2,9 +2,9 @@ import pygame
 import sys
 import os
 
-from player import Player
-from highscore import HighScore
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT
+from Frogger.scripts.player import Player
+from Frogger.scripts.highscore import HighScore
+from Frogger.scripts.constants import SCREEN_WIDTH, SCREEN_HEIGHT
 
 
 class GameOver:

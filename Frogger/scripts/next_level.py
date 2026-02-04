@@ -1,6 +1,6 @@
 import pygame
 import os
-from constants import SCREEN_HEIGHT, SCREEN_WIDTH
+from Frogger.scripts.constants import SCREEN_HEIGHT, SCREEN_WIDTH
 
 
 class NextLevel:

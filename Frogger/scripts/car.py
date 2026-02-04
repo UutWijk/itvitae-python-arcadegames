@@ -3,7 +3,7 @@ import os
 import sys
 import random
 from pygame import Rect, Color
-from constants import TILE_SIZE
+from Frogger.scripts.constants import TILE_SIZE
 
 
 class Car:
@@ -38,4 +38,3 @@ class Car:
 
     def draw(self, surface: pygame.Surface):
         surface.blit(self.sprite, self.hitbox)
-

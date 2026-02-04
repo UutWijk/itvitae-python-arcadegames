@@ -1,8 +1,8 @@
 import pygame
 import os
 import sys
-from player import Player
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT
+from Frogger.scripts.player import Player
+from Frogger.scripts.constants import SCREEN_WIDTH, SCREEN_HEIGHT
 
 
 class LivesCounter:

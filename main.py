@@ -4,6 +4,7 @@ from menu import MainMenu
 from Asteroids.asteroids.asteroids import Asteroids
 from Blockade.blockade.blockade import Blockade
 from Pong.src.game import Pong
+from Frogger.scripts.main import Frogger
 # voeg hier de import toe van de game class die van Game(State) erft
 
 import os
@@ -26,14 +27,17 @@ states = {
     "Asteroids": Asteroids(DISPLAY_SCREEN),
     "Blockade": Blockade(DISPLAY_SCREEN),
     "Pong": Pong(DISPLAY_SCREEN),
+    "Frogger": Frogger(DISPLAY_SCREEN),
 }
 games = states.keys()
 states["MENU"] = MainMenu(DISPLAY_SCREEN, games)
 current_state_key = "MENU"
 
 
-while True:  
-    dt = clock.tick(FPS)/1000 # dt is ongeveer 16.67 milliseconden (1/60 van een seconde)
+while True:
+    dt = (
+        clock.tick(FPS) / 1000
+    )  # dt is ongeveer 16.67 milliseconden (1/60 van een seconde)
     # deze loop draait dus op 60FPS (houd hier rekening mee als je gameloop op een andere tick rate draait)
     current_state = states[current_state_key]
     events = pygame.event.get()
@@ -46,7 +50,7 @@ while True:
     # logica voor het wisselen van state
     if current_state.next_state:
         new_key = current_state.next_state
-        current_state.next_state = None 
+        current_state.next_state = None
         current_state_key = new_key
         if new_key == "MENU":
             pygame.display.set_caption("Select a game...")
