@@ -33,21 +33,12 @@ class Tetris(Game):
         game_state.game_continues = True
         self.playfield = BlockField()
         self.playing_music = False
-    
+        self.key_map_flipped = {v: k for k, v in self.key_map.items()}
+
     def handle_events(self, event):
         if event.type == MOVE_PIECE_EVENT and game_state.game_continues:
             self.playfield.move_piece("down")
-
-        elif event.type == pygame.KEYDOWN:
-            if event.key in self.key_map:
-                val = self.key_map[event.key]
-                self.pressed[val] = True
-                self.just_pressed[val] = True
-                
-        elif event.type == pygame.KEYUP:
-            if event.key in self.key_map:
-                val = self.key_map[event.key]
-                self.pressed[val] = False
+        super().handle_events(event)
 
     def update(self, dt):
         if self.playing_music == False:
@@ -55,7 +46,7 @@ class Tetris(Game):
             pygame.mixer.music.play(-1)
             self.playing_music = True
 
-        movement.movement(self.playfield)
+        movement.movement(self.playfield, self.key_map_flipped, self.pressed, self.just_pressed)
         self.scores = self.playfield.leaderboard
         self.highScores = ""
         for score in self.scores:
@@ -64,11 +55,11 @@ class Tetris(Game):
             pass
         else:
             game_state.timer.set_start_speed()
-            if pygame.key.get_just_pressed()[pygame.K_z]:   
+            if self.just_pressed["a"]:   
                 game_state.game_continues = True
                 self.playfield.grid = self.playfield.defaultgrid.copy()   
                 self.playfield.score = 0  
-            elif pygame.key.get_just_pressed()[pygame.K_x]:
+            elif self.just_pressed["b"]:
                 self.next_state = "MENU"
                 game_state.game_continues = True
                 self.playfield.grid = self.playfield.defaultgrid.copy()   
@@ -105,7 +96,7 @@ class Tetris(Game):
             text_rect = game_over.get_rect(center=(self.screen.get_width() / 2, 120))
             self.screen.blit(game_over, (text_rect))
 
-            game_over = self.font20.render("RETRY: Z MENU: X", True, "white")
+            game_over = self.font20.render("RETRY: A MENU: B", True, "white")
             text_rect = game_over.get_rect(center=(self.screen.get_width() / 2, 170))
             self.screen.blit(game_over, (text_rect))
 
