@@ -44,7 +44,9 @@ def movement(playfield, keys, keys_pressed, keys_just_pressed):
             playfield.move_piece("left")
             move_sound.play()
             game_state.left_timer = 12
+
         if keys_pressed["left"]:  
+
             if game_state.left_timer == 0:
                 playfield.move_piece("left")
                 game_state.left_timer = 5
@@ -55,7 +57,10 @@ def movement(playfield, keys, keys_pressed, keys_just_pressed):
             playfield.move_piece("right")
             move_sound.play()
             game_state.right_timer = 12
+
         if keys_pressed["right"]:
+
+
             if game_state.right_timer == 0:
                 playfield.move_piece("right")
                 game_state.right_timer = 5
