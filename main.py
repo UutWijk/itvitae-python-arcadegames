@@ -3,6 +3,7 @@ from pygame.sprite import Sprite, Group
 from menu import MainMenu
 from Asteroids.asteroids.asteroids import Asteroids
 from Blockade.blockade.blockade import Blockade
+from Tetris.tetris import Tetris
 from Pong.src.game import Pong
 # voeg hier de import toe van de game class die van Game(State) erft
 
@@ -26,6 +27,7 @@ states = {
     "Asteroids": Asteroids,
     "Blockade": Blockade,
     "Pong": Pong,
+    "Tetris": Tetris,
 }
 games = states.keys()
 current_state_key = "MENU"
@@ -58,9 +60,6 @@ while True:
             pygame.quit()
             sys.exit()
         current_state.handle_events(event)
-
-
-         
 
     # update en draw aanroepen voor de huidige state
     current_state.update(dt)

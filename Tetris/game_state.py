@@ -1,38 +1,28 @@
 import pygame
 
-
 MOVE_PIECE_EVENT = pygame.USEREVENT + 1
 
-class Score:
-    def __init(self):
-        self.score = 0
-
-score = Score()
+class game_continues:
+    def __init__(self) -> None:
+        self.game_continues = True        
 
 class Timer:
-    def __init__(self):
+    def __init__(self) -> None:
         self.speed = 1000
 
-    def start(self):
+    def start(self) -> None:
         pygame.time.set_timer(MOVE_PIECE_EVENT, self.speed)
 
-    def set_speed(self, speed):
+    def set_speed(self, speed) -> None:
         self.speed = speed
-
         self.start()
-
-    def speed(self):
-        return self.speed
     
-    def set_start_speed(self):
+    def set_start_speed(self) -> None:
         self.speed = 1000
         self.start()
 
-    def update_speed(self): 
-        current_score = score
-        # print(current_score)
-
 timer = Timer()
-def make_timer():
+"""global timer for the game speed"""
+def make_timer() -> None:
     global timer
     timer.start()
