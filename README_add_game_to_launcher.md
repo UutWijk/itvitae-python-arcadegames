@@ -58,9 +58,13 @@ def SpaceInvaders(Game):
 
         # als jullie update en draw logic heel erg met elkaar verweven zit in dezelfde loop kun je def draw() achterwege laten en gewoon alles in update doen
         # dat werkt ook gewoon, het is gewoon iets minder netjes
-     ```
 
-     extra tip: zorg ervoor dat alle imports werken, mogelijk moeten deze worden aangepast wanneer je de game folder naar dit project verplaatst
+# voor het teruggaan naar het menu kun je waar dan ook in deze class de volgende lijn plakken
+self.next_state = "MENU"
+ ```
+
+extra tip: zorg ervoor dat alle imports werken, mogelijk moeten deze worden aangepast wanneer je de game folder naar dit project verplaatst
+
     
 
 
