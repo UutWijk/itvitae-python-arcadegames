@@ -49,6 +49,7 @@ def movement(playfield):
 
         original_time_speed = game_state.timer.speed
         if pygame.key.get_just_pressed()[pygame.K_DOWN]:
+            #playfield.move_piece("down")
             pygame.time.set_timer(MOVE_PIECE_EVENT, int(30))
         if pygame.key.get_just_released()[pygame.K_DOWN]:
             pygame.time.set_timer(MOVE_PIECE_EVENT, int(original_time_speed)) # seconds passed since last frame

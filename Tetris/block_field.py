@@ -108,6 +108,7 @@ class BlockField():
         self.grid[self.piece_position[0]:self.piece_position[0]+self.current_piece.size, max(self.piece_position[1], 0):self.piece_position[1]+self.current_piece.size] += drawshape
         put_piece_down_sound.play()
         self.remove_full_rows()
+        pygame.time.set_timer(pygame.USEREVENT + 1, int(game_state.timer.speed))
         self.current_piece = self.tetromino_generator.get_new_piece()
         self.piece_position = [0, 3]
         self.check_game_over()
