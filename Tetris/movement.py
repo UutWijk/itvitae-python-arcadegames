@@ -27,7 +27,7 @@ def test_rotation(playfield, newshape) -> bool:
 
 
 
-def movement(playfield):
+def movement(playfield, keys, keys_pressed, keys_just_pressed):
     """
     this function handles the movement of tetrominos
     """
@@ -40,22 +40,22 @@ def movement(playfield):
 
     if game_state.game_continues:
     #key press handling
-        if pygame.key.get_just_pressed()[pygame.K_LEFT]:
+        if keys_just_pressed["left"]:
             playfield.move_piece("left")
             move_sound.play()
             game_state.left_timer = 12
-        if pygame.key.get_pressed()[pygame.K_LEFT]:  
+        if keys_pressed["left"]:  
             if game_state.left_timer == 0:
                 playfield.move_piece("left")
                 game_state.left_timer = 5
             else:
                 game_state.left_timer -= 1
 
-        if pygame.key.get_just_pressed()[pygame.K_RIGHT]:
+        if keys_just_pressed["right"]:
             playfield.move_piece("right")
             move_sound.play()
             game_state.right_timer = 12
-        if pygame.key.get_pressed()[pygame.K_RIGHT]:  
+        if keys_pressed["right"]:
             if game_state.right_timer == 0:
                 playfield.move_piece("right")
                 game_state.right_timer = 5
@@ -63,16 +63,8 @@ def movement(playfield):
                 game_state.right_timer -= 1    
 
         original_time_speed = game_state.timer.speed
-        if pygame.key.get_just_pressed()[pygame.K_DOWN]:
-            #playfield.move_piece("down")
+        if keys_just_pressed["down"]:
             pygame.time.set_timer(MOVE_PIECE_EVENT, int(30))
-        if pygame.key.get_just_released()[pygame.K_DOWN]:
+        if pygame.key.get_just_released()[keys["down"]]:
             pygame.time.set_timer(MOVE_PIECE_EVENT, int(original_time_speed)) # seconds passed since last frame
           
-    else:
-        if pygame.key.get_just_pressed()[pygame.K_z]:   
-            game_state.game_continues = True
-            playfield.grid = playfield.defaultgrid.copy()   
-            playfield.score = 0  
-        elif pygame.key.get_just_pressed()[pygame.K_x]:
-            playfield.next_state = "MENU"
