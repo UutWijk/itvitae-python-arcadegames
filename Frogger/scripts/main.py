@@ -9,7 +9,8 @@ from highscore import HighScore
 from next_level import NextLevel
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE
 from lives_counter import LivesCounter
-from game import Game
+from ...game import Game
+
 
 pygame.init()
 FPS = 60
