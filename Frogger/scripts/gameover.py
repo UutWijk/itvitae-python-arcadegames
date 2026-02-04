@@ -1,0 +1,128 @@
+import pygame
+import sys
+import os
+
+from Frogger.scripts.player import Player
+from Frogger.scripts.highscore import HighScore
+from Frogger.scripts.constants import SCREEN_WIDTH, SCREEN_HEIGHT
+
+
+class GameOver:
+    def __init__(self, player: Player, highscore: HighScore):
+        # if os.name == "nt":
+        #    self.path_game_over = os.path.join("assets", "Gameover.png")
+        #    self.path_score = os.path.join("assets", "Score.png")
+        #    self.path_press_space = os.path.join("assets", "PressSpace.png")
+        #    self.path_press_a = os.path.join("assets", "PressA.png")
+        #    self.path_font = os.path.join("assets", "fontPixel.ttf")
+        #    self.font = pygame.Font(self.path_font, size=120)
+        #    self.game_over_sound_path = os.path.join("assets", "sounds", "GameOver.wav")
+        #    self.item_sound_path = os.path.join(
+        #        "assets", "sounds", "GameOverItemAppear.wav"
+        #    )
+        # elif os.name == "posix":
+        #    try:
+        #        self.path_game_over = os.path.join("..", "assets", "Gameover.png")
+        #        self.path_score = os.path.join("..", "assets", "Score.png")
+        #        self.path_press_space = os.path.join("..", "assets", "PressSpace.png")
+        #        self.path_press_a = os.path.join("..", "assets", "PressA.png")
+        #        self.path_font = os.path.join("..", "assets", "fontPixel.ttf")
+        #        self.font = pygame.Font(self.path_font, size=120)
+        #        self.game_over_sound_path = os.path.join(
+        #            "..", "assets", "sounds", "GameOver.wav"
+        #        )
+        #        self.item_sound_path = os.path.join(
+        #            "..", "assets", "sounds", "GameOverItemAppear.wav"
+        #        )
+        #    except FileNotFoundError:
+        #        try:
+        #            self.path_game_over = os.path.join("assets", "Gameover.png")
+        #            self.path_score = os.path.join("assets", "Score.png")
+        #            self.path_press_space = os.path.join("assets", "PressSpace.png")
+        #            self.path_press_a = os.path.join("assets", "PressA.png")
+        #            self.path_font = os.path.join("assets", "fontPixel.ttf")
+        #            self.font = pygame.Font(self.path_font, size=120)
+        #        except FileNotFoundError:
+        #            print("File Gameover.png could not be loaded. Exiting.")
+        #            sys.exit()
+        curr_dir = os.path.dirname(__file__)
+        self.path_game_over = os.path.join(curr_dir, "..", "assets", "Gameover.png")
+        self.path_score = os.path.join(curr_dir, "..", "assets", "Score.png")
+        self.path_press_space = os.path.join(curr_dir, "..", "assets", "PressSpace.png")
+        self.path_press_a = os.path.join(curr_dir, "..", "assets", "PressA.png")
+        self.path_font = os.path.join(curr_dir, "..", "assets", "fontPixel.ttf")
+        self.font = pygame.Font(self.path_font, size=120)
+        self.game_over_sound_path = os.path.join(
+            curr_dir, "..", "assets", "sounds", "GameOver.wav"
+        )
+        self.item_sound_path = os.path.join(
+            curr_dir, "..", "assets", "sounds", "GameOverItemAppear.wav"
+        )
+        self.image_game_over = pygame.image.load(self.path_game_over)
+        self.image_score = pygame.image.load(self.path_score)
+        self.image_press_space = pygame.image.load(self.path_press_a)
+        self.image_press_a = pygame.image.load(self.path_press_a)
+        self.rect = self.image_game_over.get_rect()
+        self.game_over = False
+        self.curtain = 0
+        self.curtainRect = pygame.Rect((0, 0), (SCREEN_WIDTH, 0))
+        self.timer = 0
+        self.player = player
+        self.highscore = highscore
+        self.n_points = self.player.get_score()
+
+        self.game_over_sound = pygame.Sound(self.game_over_sound_path)
+        self.item_sound = pygame.Sound(self.item_sound_path)
+
+        self.game_over_sound_played = False
+        self.score_sound_played = False
+        self.press_key_sound_played = False
+
+    def set_game_over(self):
+        self.game_over = True
+        # self.game_over_sound.play()
+
+    def reset(self):
+        self.game_over = False
+        self.curtain = 0
+        self.timer = 0
+        self.game_over_sound_played = False
+        self.score_sound_played = False
+        self.press_key_sound_played = False
+
+    def update(self, dt: float):
+        if self.game_over:
+            if self.curtain < SCREEN_HEIGHT + 20:
+                self.curtain += 1000 * dt
+
+            self.timer += dt
+
+    def draw(self, screen: pygame.Surface):
+        self.n_points = self.player.get_score()
+        score_surf = self.font.render(str(self.player.get_score()), False, "white")
+        hiscore_surf = self.font.render(
+            str(self.highscore.get_highscore()), False, "white"
+        )
+        if self.game_over:
+            if self.curtain < SCREEN_HEIGHT + 20:
+                self.curtainRect = pygame.Rect((0, 0), (SCREEN_WIDTH, self.curtain))
+            pygame.draw.rect(screen, "black", self.curtainRect)
+            if self.curtain > SCREEN_HEIGHT:
+                if not self.game_over_sound_played:
+                    self.item_sound.play()
+                    self.game_over_sound_played = True
+                screen.blit(self.image_game_over, self.rect)
+                if self.timer > 1.5:
+                    if not self.score_sound_played:
+                        self.item_sound.play()
+                        self.score_sound_played = True
+                    screen.blit(self.image_score, self.image_score.get_rect())
+                    screen.blit(score_surf, (680, 375))
+                    screen.blit(hiscore_surf, (680, 525))
+                if self.timer > 2 and int(self.timer) < self.timer - 0.4:
+                    if not self.press_key_sound_played:
+                        self.item_sound.play()
+                        self.press_key_sound_played = True
+                    screen.blit(
+                        self.image_press_space, self.image_press_space.get_rect()
+                    )
