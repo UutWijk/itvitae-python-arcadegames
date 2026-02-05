@@ -20,6 +20,9 @@ A classic implementation of Pong (1972) built with Python 3.14 and pygame-ce. Th
                     - A: start "easy" game against AI
                     - B: start "hard" game against AI
 
+While playing: 
+- B                 quit to main menu
+
 ## Project Structure
 - main.py:          entry point of the game
 - game.py           class definition and methods for the game loop
