@@ -42,5 +42,10 @@ class MenuButton:
         
         # Render the text
         text_surf = self.font.render(self.text, True, (255, 255, 255))
+        text_backlayer_surf = self.font.render(self.text, True, (0, 112,173))
+        if not is_selected:
+            text_surf.set_alpha(150)
         text_rect = text_surf.get_rect(center=self.rect.center + pygame.Vector2(0, self.rect.height // 2 + 30))
+        text_backlayer_rect = text_surf.get_rect(center=self.rect.center + pygame.Vector2(-3, self.rect.height // 2 + 28))
+        screen.blit(text_backlayer_surf, text_backlayer_rect)
         screen.blit(text_surf, text_rect)

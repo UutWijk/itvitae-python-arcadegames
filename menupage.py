@@ -22,9 +22,8 @@ class Page:
                 
                 if flat_idx < len(game_names):
                     name = game_names[flat_idx]
-                    pos_x = (c_idx + 1) * gap_x - (button_width // 2) # 100 is half of button width
-                    pos_y = (r_idx + 1) * gap_y - (button_height // 2)  # 25 is half of button height
-                    
+                    pos_x = (c_idx + 1) * gap_x - (button_width // 2)
+                    pos_y = (r_idx + 1) * gap_y - (button_height // 2) + 100                     
                     button_row.append(MenuButton(name, pos_x, pos_y, button_width, button_height, font, assets_path))
             
             if button_row:

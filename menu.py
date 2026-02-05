@@ -11,7 +11,7 @@ class MainMenu(State):
         super().__init__(screen)
         self.games = games
 
-        self.font = pygame.font.SysFont("Arial", 30)
+        
 
         # UI Layout settings
         start_x = 300
@@ -23,7 +23,11 @@ class MainMenu(State):
         assets_path = os.path.join(current_dir, "menu_assets")
         background_image_path = os.path.join(assets_path, "background", "capgemini_wirl.png")
         self.background_image = pygame.image.load(background_image_path).convert()
-
+        self.capgemini_logo = pygame.image.load(os.path.join(assets_path, "capgemini_logos", "capgemini_logo_blauw_op_wit_rechthoek.png")).convert_alpha()
+        self.capgemini_white = pygame.image.load(os.path.join(assets_path, "capgemini_logos", "capgemini_logo_wit.png")).convert_alpha()
+        self.capgemini_logo = pygame.transform.smoothscale(self.capgemini_logo, (0.5 * self.capgemini_logo.get_width(), 0.5 * self.capgemini_logo.get_height()))
+        self.capgemini_white = pygame.transform.smoothscale(self.capgemini_white, (0.5 * self.capgemini_white.get_width(), 0.5 * self.capgemini_white.get_height()))
+        self.font = pygame.font.Font(os.path.join(assets_path, "fontPixel.ttf"), 35)
         self.page_rows = 2
         self.page_cols = 3
         self.pages = self.create_pages(assets_path)
@@ -105,6 +109,13 @@ class MainMenu(State):
     def draw(self):
         self.screen.fill((255, 255, 255))
         self.screen.blit(self.background_image, (0, 0))
+        temp_surface = pygame.Surface((self.screen.width, self.screen.height))
+        temp_surface.set_alpha(90)
+        temp_surface.fill((0, 0, 0))
+        self.screen.blit(temp_surface, (0,0))
+        self.screen.blit(self.capgemini_white, (53, 53))
+        self.screen.blit(self.capgemini_logo, (50,50))
+        
         current_page = self.pages[self.current_page_index]
         current_page.draw(self.screen, (self.current_row_index, self.current_col_index))
 
