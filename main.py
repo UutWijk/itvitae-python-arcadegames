@@ -36,6 +36,18 @@ states = {
     "Tetris": Tetris,
     "Frogger": Frogger,
     "Space Invaders": SpaceInvaders,
+        "Aseroids": Asteroids,
+    "Blocade": Blockade,
+    "Pog": Pong,
+    "Tetis": Tetris,
+    "Froger": Frogger,
+    "SpaceInvaders": SpaceInvaders,
+        "Asroids": Asteroids,
+    "Blocde": Blockade,
+    "Pg": Pong,
+    "Ttris": Tetris,
+    "Frger": Frogger,
+    "Spa Invaders": SpaceInvaders,
 
 }
 games = list(states.keys())
