@@ -74,6 +74,8 @@ class Asteroids(Game):
                 for _ in range(self.current_count):
                     self.spawn_obstacle()
             obstacle_in_center = False
+
+            # whether ufos and the player hit eachother
             for bullet in self.bullets:
                 if bullet.ufo:
                     if pygame.sprite.collide_mask(bullet, self.player):
@@ -85,14 +87,21 @@ class Asteroids(Game):
                             bullet.kill()
                             self.player.add_score(200)
                             ufo.hit = True
-                            self.sounds.ufo_impact()  
+                            self.sounds.ufo_impact() 
+
+            
             for obstacle in self.obstacles:
+
+                # for multiple obstacles hit in same frame
                 hit_obstacles = []
+
+                # whether ufo hits obstacle
                 for ufo in self.ufos:
                     if pygame.sprite.collide_mask(obstacle, ufo):
                         ufo.hit = True
-                        hit_obstacles.append(obstacle)
-                        
+                        hit_obstacles.append(obstacle)  
+
+                # whether player hits obstacle                      
                 if not self.player.invincible:
                     if self.player.respawning:
                         if obstacle.pos.distance_to(pygame.Vector2(self.screen.get_width() // 2, self.screen.get_height() // 2)) < 150:
@@ -104,6 +113,8 @@ class Asteroids(Game):
                         if player_hit:
                             self.player_lose_life() 
                         hit_obstacles.extend(player_hit)
+
+                        # handles obstacle breaking
                         if hit_obstacles:                                                                                  
                             for obstacle in hit_obstacles:
                                 new_obstacles = obstacle.killed()
@@ -111,35 +122,49 @@ class Asteroids(Game):
                                 if new_obstacles:
                                     self.obstacles.add(new_obstacles)
                 
+                # whether player bullet hits obstacle
                 for bullet in self.bullets:   
                     if pygame.sprite.collide_mask(bullet, obstacle) and bullet.kills and bullet.ufo == False:
-                        bullet.kill()            
-                        if self.current_state == "gameplay":   
-                            match obstacle.stage:
-                                case 1:
-                                    self.player.add_score(10)
-                                case 2:
-                                    self.player.add_score(20)
-                                case 3:
-                                    self.player.add_score(50)
+                        bullet.kill()              
+                        match obstacle.stage:
+                            case 1:
+                                self.player.add_score(10)
+                            case 2:
+                                self.player.add_score(20)
+                            case 3:
+                                self.player.add_score(50)
+
+                        # kills = False bullets are for particle effects only        
                         for _ in range(random.randint(2, 5)):
                             self.bullets.add(Bullet(obstacle.pos.x, obstacle.pos.y, random.uniform(0, 360), lifetime=random.uniform(0.1, 1.6), speed=random.uniform(10, 200), kills=False))
+
+                        # handles obstacle breaking    
                         new_obstacles = obstacle.killed()
                         self.sounds.asteroid_break()
                         if new_obstacles:
                             self.obstacles.add(new_obstacles)
+
+            # player respawn conditions:
+            # - player must be in respawning state
+            # - no obstacles near center (prevents player from spawning on top of an asteroid)
+            # - respawning animation reached minimum time
+            # - player has lives
             if self.player.respawning and not obstacle_in_center and self.player.respawn_timer >= self.player.respawn_duration and self.player.lives > 0:
                 self.player.respawn()
             
+        # update game objects
         self.bullets.update(dt)
         self.obstacles.update(dt)
         self.ufos.update(dt, self.player, self.obstacles)
+
+        # random ufo spawning
         if self.current_state == "gameplay":
             self.ufo_timer -= dt
             if self.ufo_timer <= 0:
                 self.ufos.add(UFO(self.screen.get_width(), self.screen.get_height(), self.bullets, self.obstacles, self.sounds))
                 self.ufo_timer = random.randint(15, 30)
 
+        # game over state input handling
         if self.current_state == "game_over":
             self.game_over_timer += dt
             if self.game_over_timer > 1.0:
@@ -147,21 +172,26 @@ class Asteroids(Game):
                     self.reset()
                 if self.pressed["b"]:
                     self.reset()
-                    self.__init__(self.screen)
                     self.next_state = "MENU"
                 return
 
+    
     def player_lose_life(self):
         self.player.lives -= 1
+
+        # game over handling
         if self.player.lives <= 0:
             self.current_state = "game_over"
             self.game_over_timer = 0.0  
+
             # Check and update high scores
             if len(self.highscore_list) < 10 or self.player.score > int(self.highscore_list[-1]):
                 self.highscore_list.append(str(self.player.score))
                 self.sort_highscores()
                 with open(self.highscore_file, "w") as f:
                     f.write("\n".join(self.highscore_list))
+
+        # kills = False bullets as particle effect
         for _ in range(random.randint(3, 6)):
             self.bullets.add(Bullet(self.player.pos.x + random.randrange(0,10), self.player.pos.y + random.randrange(0,10), random.uniform(0, 360), lifetime=random.uniform(0.1, 2.5), speed=random.uniform(10, 50), kills=False))
         self.player.death()
@@ -169,16 +199,20 @@ class Asteroids(Game):
 
     def draw(self) -> None:
         self.screen.fill("#000000")
+
+        # player, lives and score
         if self.current_state is not "title":
             self.player.draw(self.screen)
             for _ in range(self.player.lives):
                 self.screen.blit(self.ship_image, (10 + _ * 40, 60))
             self.screen.blit(self.font.render(f"Score: {self.player.score}", True, (255, 255, 255)), (10, 10))
 
+        # game objects
         self.bullets.draw(self.screen)
         self.obstacles.draw(self.screen)
         self.ufos.draw(self.screen, self.player.pos)
 
+        # title screen
         if self.current_state == "title":
             semi_opaque_surface = pygame.Surface((self.screen.get_width(), self.screen.get_height()))
             semi_opaque_surface.set_alpha(150)
@@ -200,6 +234,7 @@ class Asteroids(Game):
                 self.next_state = "MENU"
             return
 
+        #game over screen
         if self.current_state == "game_over":
             semi_opaque_surface = pygame.Surface((self.screen.get_width(), self.screen.get_height()))
             if self.game_over_timer < 1.0:
@@ -230,6 +265,7 @@ class Asteroids(Game):
                 self.screen.blit(back_to_menu_text, back_to_menu_rect)
             self.screen.blit(game_over_text, text_rect)
 
+            # when game over animation is done
             if self.game_over_timer > 3.0:
 
                 # High scores
@@ -249,14 +285,18 @@ class Asteroids(Game):
                     entry_rect = hs_entry_text.get_rect(left=hs_x - 50, top=hs_y_start + 50 + (i * 35))
                     self.screen.blit(hs_entry_text, entry_rect)
 
+    # spawns an obstacle randomly on the screen
     def spawn_obstacle(self, stage = 1):
         random_x = random.randint(0, self.screen.get_width())
         random_y = random.randint(0, self.screen.get_height())
+
+        # if coordinates are too close to player, try again
         if pygame.Vector2(random_x, random_y).distance_to(self.player.pos) < 200:
             self.spawn_obstacle(stage)
         else:
             self.obstacles.add(Obstacle(random_x, random_y, self.screen.get_width(), self.screen.get_height(), stage))
 
+    # resets all game variables
     def reset(self):
         self.current_state = "gameplay"
         self.bullets.empty()
@@ -272,6 +312,7 @@ class Asteroids(Game):
         self.obstacles = Group()
         for _ in range(self.current_count):
             self.spawn_obstacle()
+
 
     def sort_highscores(self):
         self.highscore_list.sort(key=lambda x: int(x), reverse=True)

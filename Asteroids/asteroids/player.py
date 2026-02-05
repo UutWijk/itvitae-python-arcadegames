@@ -12,10 +12,13 @@ class Player(pygame.sprite.Sprite):
         self.sounds = sounds
         self.screenwidth = screenwidth
         self.screenheight = screenheight
+
+        # asset loading
         self.current_dir = os.path.dirname(os.path.abspath(__file__))
         self.image_default = pygame.image.load(os.path.join(self.current_dir, "sprites/spaceship_default.png"))
         self.image_boosting = pygame.image.load(os.path.join(self.current_dir, "sprites/spaceship_boosting.png"))
-        self.animation_timer = 0
+
+        # transforming images for in-game size and orientation
         self.rect = self.image_default.get_rect()
         w, h = self.image_default.get_size()
         self.image_default = pygame.transform.smoothscale(
@@ -26,18 +29,23 @@ class Player(pygame.sprite.Sprite):
             (int(w * SCALE), int(h * SCALE)))
         self.image = self.image_default
         self.mask = pygame.mask.from_surface(self.image_default)
+
+        # spawning position and orientation
         self.rect.center = (screenwidth // 2, screenheight // 2)
         self.angle = 0
+
+        # shooting parameters
         self.shoot_delay = 0.2 #seconds between shots
         self.time_since_last_shot = 0
 
+        # floating point vector for position tracking (rects round to int)
         self.pos = pygame.Vector2(self.rect.center)        
 
-        #these are for the acceleration of the player, its used in the update function and used in the up arrow key
-        self.vel_x = 0 #track movement
-        self.vel_y = 0 #   ^
-        self.acceleration = 750 #how fast the ship speeds up
-        self.friction = 0.98 #slows player slightly to prevent high speeds
+        # movement parameters
+        self.vel_x = 0
+        self.vel_y = 0 
+        self.acceleration = 750 
+        self.friction = 0.98 # decreases speed over time
 
         self.lives = 3
         self.score = 0
@@ -52,25 +60,27 @@ class Player(pygame.sprite.Sprite):
         self.invincible = False
         self.invincible_duration = 1.0  # seconds
         self.invincible_timer = 0.0
+        self.animation_timer = 0
 
 
     def update(self, dt, pressed, just_pressed):
         
-        # 2. Handle Rotation Input
+        
         rotation_speed = 270
         if self.lives > 0 and not self.respawning:
+            # Handle Rotation Input
             if pressed["left"]:
                 self.angle += rotation_speed * dt
             if pressed["right"]:
                 self.angle -= rotation_speed * dt
-        # 3. Determine base image (Animation) and apply rotation
-        # Use a local variable so we don't destroy our source images
+
+            # Acceleration
             if pressed["up"]:
+                # "thruster" animation flicker
                 self.animation_timer += 1
-                # Toggle between default and boosting for a flicker effect
                 base_surf = self.image_boosting if (self.animation_timer // 5) % 2 == 0 else self.image_default
                 
-                # Acceleration logic
+                # acceleration logic
                 rad = math.radians(self.angle)
                 self.vel_x += -math.sin(rad) * self.acceleration * dt
                 self.vel_y += -math.cos(rad) * self.acceleration * dt
@@ -80,11 +90,13 @@ class Player(pygame.sprite.Sprite):
         # 1. Handle Invincibility
         if self.invincible:
             self.animation_timer += 1
-            # Flicker effect
+            # blinking animation when invincible
             base_surf = pygame.Surface((1, 1), pygame.SRCALPHA) if (self.animation_timer // 5) % 2 == 0 else self.image_default
             self.invincible_timer -= dt
             if self.invincible_timer <= 0:
                 self.invincible = False
+
+        # move beams for death animation
         if self.respawning:
             base_surf = pygame.Surface((1, 1), pygame.SRCALPHA)
             self.respawn_timer += dt
@@ -116,6 +128,7 @@ class Player(pygame.sprite.Sprite):
         # Finalize rect position
         self.rect.center = self.pos
 
+        # detect shooting input
         self.time_since_last_shot += dt
         if just_pressed["a"]:
             self.shoot()
@@ -149,11 +162,12 @@ class Player(pygame.sprite.Sprite):
         cw, ch = center_raw.get_size()
         SCALE = 0.12
 
-        # 2. Scale and RE-CONVERT to ensure the new surface is display-ready
+        # 2. scale beam images
         rb = pygame.transform.smoothscale(right_raw, (int(w * SCALE), int(h * SCALE))).convert_alpha()
         cb = pygame.transform.smoothscale(center_raw, (int(cw * SCALE), int(ch * SCALE))).convert_alpha()
         lb = pygame.transform.flip(rb, True, False).convert_alpha()
 
+        # dict for relevant beam data
         self.beams = {
             "right": {
                 "og_image": rb, 
@@ -197,6 +211,8 @@ class Player(pygame.sprite.Sprite):
             self.vel_y = 0
 
     def add_score(self, points):
-        self.score += points
+        # prevents points from being gained while already game over
+        if self.lives > 0:
+            self.score += points
 
         

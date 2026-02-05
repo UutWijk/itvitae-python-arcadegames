@@ -14,11 +14,15 @@ class UFO(pygame.sprite.Sprite):
         self.bullets = bullets
         self.screenwidth = screenwidth
         self.screenheight = screenheight
+        
+        # asset loading
         self.current_dir = os.path.dirname(os.path.abspath(__file__))
         self.image = pygame.image.load(os.path.join(self.current_dir, "sprites/ufo.png"))
         self.maskimage = pygame.image.load(os.path.join(self.current_dir, "sprites/ufo_mask.png"))
         self.animation_timer = 0
         self.rect = self.image.get_rect()
+
+        # transforming image and mask to scale
         w, h = self.image.get_size()
         self.image = pygame.transform.smoothscale(
             self.image,
@@ -29,8 +33,11 @@ class UFO(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.maskimage)
         self.rect.center = (screenwidth // 2, screenheight // 2)
 
+        # movement parameters
         self.speed = 200
         self.angle = random.randrange(0, 360)
+
+        # generate random entry side
         sides = ['top', 'bottom', 'left', 'right']
         def randomizespawnpoint():
             side = random.choice(sides)
@@ -44,6 +51,7 @@ class UFO(pygame.sprite.Sprite):
                 self.rect.center = (screenwidth, random.randrange(0, screenheight))
             self.angle = 0
             
+            # generate random movement direction based on entry side (60 degrees randomness)
             if side == 'top':
                 self.angle = random.randrange(150, 210)
             elif side == 'bottom':
@@ -52,16 +60,21 @@ class UFO(pygame.sprite.Sprite):
                 self.angle = random.randrange(-120, -60)
             elif side == 'right':
                 self.angle = random.randrange(60, 120)
+
+            # if entry runs straight into asteroid try again
             for obstacle in obstacles:
                 if pygame.Vector2(self.rect.center).distance_to(obstacle.pos) < 300:
                     randomizespawnpoint()
         randomizespawnpoint()
 
+        # "turning" to dodge asteroids
         self.turnclockwise = False
         self.turncounterclockwise = False
         self.turntimer = 0.0
+
+        # movement parameters
         self.velocity = pygame.Vector2(0, -self.speed).rotate(-self.angle)
-        self.shoot_delay = 1 #seconds between shots
+        self.shoot_delay = 1 # seconds between shots
         self.time_since_last_shot = 0
 
         self.flicker_timer = 0
@@ -71,8 +84,10 @@ class UFO(pygame.sprite.Sprite):
 
 
     def update(self, dt, player, obstacles):
-
+        # dampen entry sound over time
         self.sounds.fade_ufo(dt / 4)
+
+        # asteroid dodging logic
         if not (self.turnclockwise or self.turncounterclockwise):
             self.velocity = pygame.Vector2(0, -self.speed).rotate(-self.angle)
             for obstacle in obstacles:
@@ -93,10 +108,13 @@ class UFO(pygame.sprite.Sprite):
                 self.velocity = pygame.Vector2(0, -self.speed).rotate(-self.angle - 60)
             if self.turncounterclockwise:
                 self.velocity = pygame.Vector2(0, -self.speed).rotate(-self.angle + 60)
+
+        # generic position update
         self.pos += self.velocity * dt
         self.rect = self.image.get_rect(center=self.pos)
         self.mask = pygame.mask.from_surface(self.image)
 
+        # death animation
         if self.hit:
             self.flicker_timer += dt
             if self.flicker_timer % 0.1 < 0.05:
@@ -119,8 +137,6 @@ class UFO(pygame.sprite.Sprite):
         if self.time_since_last_shot >= self.shoot_delay:
             self.shoot(player)
             
-
-        
     def draw(self,surface):
         surface.blit(self.image, self.rect)
 
@@ -131,6 +147,9 @@ class UFO(pygame.sprite.Sprite):
             player.pos.y - self.rect.centery,
             player.pos.x - self.rect.centerx))
         shoot_angle += 90
+
+        # if player score is over 1000, shoot more accurately 
+        # (2000 is twice as accurate, 3000 three times, etc.)
         if player.score < 1000:
             shoot_angle += random.randrange(-45,45)
         else:

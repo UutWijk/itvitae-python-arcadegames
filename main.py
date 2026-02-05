@@ -41,7 +41,7 @@ games = list(states.keys())
 current_state_key = "MENU"
 current_state = MainMenu(DISPLAY_SCREEN, games)
 
-
+# state switching logic
 def change_state(key):
     global current_state, current_state_key
     current_state.next_state = None
@@ -58,13 +58,11 @@ def change_state(key):
 while True:
     dt = (
         clock.tick(FPS) / 1000
-    )  # dt is ongeveer 16.67 milliseconden (1/60 van een seconde)
+    ) # dt = 0.01666...
 
-    # logica voor het wisselen van state
     if current_state.next_state:
         change_state(current_state.next_state)
 
-    # deze loop draait dus op 60FPS (houd hier rekening mee als je gameloop op een andere tick rate draait)
     events = pygame.event.get()
     for event in events:
         if event.type == pygame.QUIT:
@@ -72,17 +70,8 @@ while True:
             sys.exit()
         current_state.handle_events(event)
 
-    # logica voor het wisselen van state
-    if current_state.next_state:
-        new_key = current_state.next_state
-        current_state.next_state = None
-        current_state_key = new_key
-        if new_key == "MENU":
-            pygame.display.set_caption("Select a game...")
-        else:
-            pygame.display.set_caption(type(states[new_key]).__name__)
 
-    # update en draw aanroepen voor de huidige state
+    # call update and draw for current state
     current_state.update(dt)
     current_state.draw()
     current_state.reset_just_pressed()

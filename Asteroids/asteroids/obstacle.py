@@ -10,6 +10,8 @@ class Obstacle(Sprite):
         super().__init__()
         SCALE = 0.4
         self.speed = 100
+
+        # set scale and speed based on stage
         match stage:
             case 1:
                 SCALE = 0.35
@@ -23,10 +25,14 @@ class Obstacle(Sprite):
         self.stage = stage
         self.screenwidth = screenwidth
         self.screenheight = screenheight
+
+        # asset loading
         spritechoice = "sprites/asteroid" + str(random.randint(1,5))
         current_dir = os.path.dirname(os.path.abspath(__file__))
         self.image = pygame.image.load(os.path.join(current_dir, spritechoice + ".png")).convert_alpha()
         self.maskimage = pygame.image.load(os.path.join(current_dir, spritechoice + "_mask.png")).convert_alpha()
+
+        # transforming image and mask for in-game size
         w, h = self.image.get_size()
         self.image = pygame.transform.smoothscale(
             self.image,
@@ -40,11 +46,14 @@ class Obstacle(Sprite):
         self.rect = self.image.get_rect(center=(x, y))
         self.mask = pygame.mask.from_surface(self.maskimage)
 
-
+        # define position and random rotation (so its less obvious there are only 5 sprites)
         self.pos = pygame.Vector2(x, y)
         self.angle = random.randrange(0, 360)
+
+        # had to flip angle and speed for standardization with other game objects
         self.velocity = pygame.Vector2(0, -self.speed).rotate(-self.angle)
 
+    # split into two unless last stage
     def killed(self):
         self.kill()
         if self.stage < 3:            

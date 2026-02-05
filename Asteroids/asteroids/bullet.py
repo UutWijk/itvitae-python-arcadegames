@@ -1,39 +1,40 @@
-import random
+
 import pygame
-import math
-from pygame.sprite import Sprite, Group
+from pygame.sprite import Sprite
 
 
 class Bullet(Sprite):
 
-    # Attributes die we nodig hebben zijn positie en de hoek. 
+    # position and angle set in constructor
+    # - kills = False for bullets that only add as "particle effects"
+    # - ufo if bullet was shot by ufo (kills player, doesnt affect asteroids)
+    # - speed can be adapted for ufo-shot bullets and particle effects
     def __init__(self, x, y, angle, lifetime=1, speed=1000, kills=True, ufo=False):
-
-        # Initialiseer de parent Sprite class. 
         super().__init__()
-        # Surface maken, vullen met een kleur, Rect maken van de Surface
-        self.image = pygame.Surface((4, 4))
-        self.image.fill(("#ffffff")) # Classic witte bullet
-        self.rect = self.image.get_rect(center=(x, y)) # midden van Rect gekoppeld aan x en y coördinaten
-        self.mask = pygame.mask.from_surface(self.image)
-        # Bewegingseigenschappen met behulp van Vectors. 
-        # Pygame-CE's Vector2 zouden hiervoor perfect moeten zijn volgens Gemini.
-        self.pos = pygame.Vector2(x, y)
-        self.speed = speed # Dit later nog aanpassen naar resolutie. 
-        # Maak een vector gebaseerd op de hoek van het schip 
-        self.velocity = pygame.Vector2(0, -self.speed).rotate(-angle) # We gaan ervan uit dat 0 graden UP is; kunnen we wijzigen
 
+        # bullet is just a small 4x4 square pixel
+        self.image = pygame.Surface((4, 4))
+        self.image.fill(("#ffffff"))
+        self.rect = self.image.get_rect(center=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+
+        # position variables
+        self.pos = pygame.Vector2(x, y)
+        self.speed = speed
+
+        # had to flip angle and speed for standardization with other game objects
+        self.velocity = pygame.Vector2(0, -self.speed).rotate(-angle)
+
+        # set other constructor values
         self.lifetime = lifetime
         self.kills = kills
         self.ufo = ufo
 
     def update(self, dt):
-        # Verplaatst de position vector. 
         self.pos += self.velocity * dt
         self.lifetime -= dt
         if self.lifetime <= 0:
             self.kill()
-        # Update de actuele REect positie. 
         self.rect.center = self.pos
 
 
