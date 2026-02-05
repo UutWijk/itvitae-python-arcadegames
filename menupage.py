@@ -7,27 +7,28 @@ class Page:
         self.buttons = [] # A 2D list: [row][col]
         
         screen_w, screen_h = screen_size
+
+        # divides screen on row and column count
         gap_x = screen_w // (self.cols + 1)
         gap_y = screen_h // (self.rows + 1)
 
+        # button dimensions
         button_width = 256
         button_height = 192
 
         y_offset = 0
         
-        # Build the grid
+        # maps game list onto 2D grid
         for r_idx in range(self.rows):
             button_row = []
             for c_idx in range(self.cols):
-                # Calculate index in the flat list of 6 games
-                flat_idx = r_idx * self.cols + c_idx
-                
+                flat_idx = r_idx * self.cols + c_idx                
                 if flat_idx < len(game_names):
                     name = game_names[flat_idx]
                     pos_x = (c_idx + 1) * gap_x - (button_width // 2)
                     pos_y = (r_idx + 1) * gap_y - (button_height // 2) + y_offset                    
                     button_row.append(MenuButton(name, pos_x, pos_y, button_width, button_height, font, assets_path))
-            
+
             if button_row:
                 self.buttons.append(button_row)
 

@@ -6,16 +6,15 @@ class State:
         self.next_state = None
         self.multiplayer = multiplayer
 
-        # standaard key map voor up, down, left, right, a, b
+        # standard key map for up, down, left, right, a, b
         self.key_map = {
         pygame.K_UP: "up", pygame.K_DOWN: "down",
         pygame.K_LEFT: "left", pygame.K_RIGHT: "right",
         pygame.K_a: "a", pygame.K_b: "b"
         }
 
-        # substitute controls voor multiplayer (momenteel alleen voor pong en blockade)
-        # controls van player 1 zijn ESDF om A en B te behouden, player 2 gebruikt de pijltjes
-        # de bindings kunnen eventueel eenvoudig hier aangepast worden
+        # substitute controls for multiplayer
+        # ESDF for player 1 (instead of WASD which would use the A button)
         if self.multiplayer:
             self.key_map = {
         pygame.K_e: "up", pygame.K_d: "down",
@@ -25,14 +24,13 @@ class State:
         pygame.K_LEFT: "left2", pygame.K_RIGHT: "right2"
         }
             
-        # gebruik deze dictionary voor key press detection
-        # voorbeeld: 
-        # if self.pressed["up"]:
-        # just_pressed is voor keys die eenmalig triggeren (zoals schieten waarbij hij maar 1x schiet als je de knop inhoudt)
+        # use these dictionaries for key input detection in your game
+        # pressed = True while holding key
+        # just_pressed = True only for one frame (useful for one shot triggers)
         self.pressed = {key: False for key in self.key_map.values()}
         self.just_pressed = {key: False for key in self.key_map.values()}
 
-    # het afhandelen van key press events 
+    # handles key inputs for self.pressed and self.just_pressed
     def handle_events(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key in self.key_map:
@@ -45,20 +43,16 @@ class State:
                 val = self.key_map[event.key]
                 self.pressed[val] = False
 
-    # update en draw (erf deze methoden voor de game logic)
+    # implement update in your game class for game logic
+    # dt = time interval in seconds (0.01667 on 60FPS)
     def update(self, dt):
         pass
-    # gebruik eventueel dt voor tijdsgebonden triggers
-    # voorbeeld: 
-    # def update(self, dt):
-    #   if (condition):
-    #       self.timer += dt
-    # self.timer telt hier de tijd in seconden
-    
+
+    # implement draw in your game class for visual rendering
     def draw(self):
         pass
 
-    # functionaliteit voor de just_pressed mechanic
+    # makes sure just_pressed only triggers once
     def reset_just_pressed(self):
         for key in self.just_pressed:
             self.just_pressed[key] = False

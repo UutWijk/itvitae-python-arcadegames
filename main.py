@@ -1,15 +1,16 @@
 import pygame
 from pygame.sprite import Sprite, Group
 from menu import MainMenu
+
+# import game classes
 from Asteroids.asteroids.asteroids import Asteroids
 from Blockade.blockade.blockade import Blockade
 from Tetris.tetris import Tetris
 from Pong.src.game import Pong
-
 from Frogger.scripts.main import Frogger
 from Space_Invaders.space_invaders import SpaceInvaders
 
-# voeg hier de import toe van de game class die van Game(State) erft
+
 
 import os
 import sys
@@ -28,7 +29,7 @@ icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "menu_asset
 icon_image = pygame.image.load(icon_path)
 pygame.display.set_icon(icon_image)
 
-# voeg de geimporteerde class toe aan deze dictionary
+# add classes ineriting from Game(State) to game list
 states = {
     "Asteroids": Asteroids,
     "Blockade": Blockade,
@@ -63,6 +64,7 @@ while True:
     if current_state.next_state:
         change_state(current_state.next_state)
 
+    # event handling
     events = pygame.event.get()
     for event in events:
         if event.type == pygame.QUIT:

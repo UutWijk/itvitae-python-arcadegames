@@ -11,6 +11,7 @@ class MainMenu(State):
         super().__init__(screen)
         self.games = games
 
+        # asset loading
         current_dir = os.path.dirname(os.path.abspath(__file__))
         assets_path = os.path.join(current_dir, "menu_assets")
         background_image_path = os.path.join(assets_path, "background", "capgemini_wirl.png")
@@ -24,9 +25,14 @@ class MainMenu(State):
         self.font = pygame.font.Font(os.path.join(assets_path, "fontPixel.ttf"), 35)
         self.pagemarkers_font = pygame.font.Font(os.path.join(assets_path, "fontPixel.ttf"), 70)
 
+        # define grid for game display
         self.page_rows = 2
         self.page_cols = 3
+
+        # create pages
         self.pages = self.create_pages(assets_path)
+
+        # tracks index of moveable cursor in grid
         self.current_page_index = 0
         self.current_row_index = 0
         self.current_col_index = 0
@@ -39,10 +45,10 @@ class MainMenu(State):
         if self.just_pressed["a"]:
             self.next_state = self.current_game
 
-
-
-
+    # handles cursor movement on arrow key input
     def switch_button(self):
+
+        # page switching function
         def switch_page(direction):
             if direction == "next":
                 if self.current_page_index == len(self.pages) - 1:
@@ -55,6 +61,7 @@ class MainMenu(State):
                 else:
                     self.current_page_index -= 1
 
+        # moves index based on arrow key input, switches page when at edge of grid
         if self.just_pressed["up"]:
             if self.current_row_index == 0:
                 self.current_row_index = self.page_rows - 1
@@ -79,12 +86,13 @@ class MainMenu(State):
                 self.current_col_index += 1
         
 
-
+    
     def create_pages(self, assets_path=None):
         pages = []
         games_copy = self.games.copy()
         games_per_page = self.page_rows * self.page_cols
-        
+
+        # creates pages until all games are in a page
         while games_copy:
             chunk = [games_copy.pop(0) for _ in range(min(len(games_copy), games_per_page))]
             new_page = Page(chunk, self.page_rows, self.page_cols, self.screen.get_size(), self.font, assets_path)
@@ -103,7 +111,7 @@ class MainMenu(State):
         current_page = self.pages[self.current_page_index]
         current_page.draw(self.screen, (self.current_row_index, self.current_col_index))
 
-
+        # arrows and page number at bottom center of screen
         pagemarkers = [" ", " ", " ", " ", " "] 
         if len(self.pages) > 1:
             if self.current_page_index != 0:
@@ -113,7 +121,6 @@ class MainMenu(State):
                 pagemarkers[4] = ">"
 
             pagemarkers[2] = str(self.current_page_index + 1)
-
         pagemarkers = "".join(pagemarkers)
         pagemarkers_surf = self.pagemarkers_font.render(pagemarkers, True, (255, 255, 255))
         pagemarkers_rect = pagemarkers_surf.get_rect()
