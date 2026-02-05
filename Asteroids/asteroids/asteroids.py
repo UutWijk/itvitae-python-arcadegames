@@ -85,7 +85,7 @@ class Asteroids(Game):
                     for ufo in self.ufos:
                         if pygame.sprite.collide_mask(bullet, ufo) and bullet.kills and not bullet.ufo:
                             bullet.kill()
-                            self.player.add_score(200)
+                            self.player.add_score(50 * self.current_count)
                             ufo.hit = True
                             self.sounds.ufo_impact() 
 
@@ -128,11 +128,11 @@ class Asteroids(Game):
                         bullet.kill()              
                         match obstacle.stage:
                             case 1:
-                                self.player.add_score(10)
+                                self.player.add_score(5 * self.current_count)
                             case 2:
-                                self.player.add_score(20)
+                                self.player.add_score(10 * self.current_count)
                             case 3:
-                                self.player.add_score(50)
+                                self.player.add_score(25 * self.current_count)
 
                         # kills = False bullets are for particle effects only        
                         for _ in range(random.randint(2, 5)):

@@ -37,34 +37,26 @@ class UFO(pygame.sprite.Sprite):
         self.angle = random.randrange(0, 360)
 
         # generate random entry side
-        sides = ['top', 'bottom', 'left', 'right']
         def randomizespawnpoint():
-            side = random.choice(sides)
-            if side == 'top':
-                self.rect.center = (random.randrange(0, screenwidth), 0)
-            elif side == 'bottom':
-                self.rect.center = (random.randrange(0, screenwidth), screenheight)
-            elif side == 'left':
-                self.rect.center = (0, random.randrange(0, screenheight))
-            elif side == 'right':
-                self.rect.center = (screenwidth, random.randrange(0, screenheight))
-            self.angle = 0
-            
-            # generate random movement direction based on entry side (60 degrees randomness)
-            if side == 'top':
-                self.angle = random.randrange(150, 210)
-            elif side == 'bottom':
-                self.angle = random.randrange(-30, 30)
-            elif side == 'left':
-                self.angle = random.randrange(-120, -60)
-            elif side == 'right':
-                self.angle = random.randrange(60, 120)
+            valid = False
+            while not valid:
+                side = random.choice(['top', 'bottom', 'left', 'right'])
+                if side == 'top':
+                    start_pos = pygame.Vector2(random.randrange(100, screenwidth-100), -50)
+                    start_angle = random.randrange(255, 285) 
+                elif side == 'bottom':
+                    start_pos = pygame.Vector2(random.randrange(100, screenwidth-100), screenheight + 50)
+                    start_angle = random.randrange(75, 105)
+                elif side == 'left':
+                    start_pos = pygame.Vector2(-50, random.randrange(100, screenheight-100))
+                    start_angle = random.randrange(-15, 15)
+                elif side == 'right':
+                    start_pos = pygame.Vector2(screenwidth + 50, random.randrange(100, screenheight - 100))
+                    start_angle =  random.randrange(165, 195)
 
-            # if entry runs straight into asteroid try again
-            for obstacle in obstacles:
-                if pygame.Vector2(self.rect.center).distance_to(obstacle.pos) < 300:
-                    randomizespawnpoint()
-        randomizespawnpoint()
+                # check asteroid distance
+                if all(start_pos.distance_to(obs.pos) > 300 for obs in obstacles):
+                    return start_pos, start_angle
 
         # "turning" to dodge asteroids
         self.turnclockwise = False
@@ -73,19 +65,20 @@ class UFO(pygame.sprite.Sprite):
 
         # movement parameters
         self.velocity = pygame.Vector2(0, -self.speed).rotate(-self.angle)
-        self.shoot_delay = 1 # seconds between shots
+        self.shoot_delay = 1.5 # seconds between shots
         self.time_since_last_shot = 0
 
         self.flicker_timer = 0
         self.hit = False
-
-        self.pos = pygame.Vector2(self.rect.center)
+        x, y = randomizespawnpoint()
+        self.pos = pygame.Vector2(x, y)
 
 
     def update(self, dt, player, obstacles):
         # dampen entry sound over time
         self.sounds.fade_ufo(dt / 4)
-
+        if player.score > 2000:
+            self.speed = 175 + player.score / 80
         # asteroid dodging logic
         if not (self.turnclockwise or self.turncounterclockwise):
             self.velocity = pygame.Vector2(0, -self.speed).rotate(-self.angle)
@@ -123,11 +116,21 @@ class UFO(pygame.sprite.Sprite):
             if self.flicker_timer >= 0.5:
                 self.death()
 
-        # Screen Wrap
-        if self.rect.right < 0: self.pos.x = self.screenwidth
-        elif self.rect.left > self.screenwidth: self.pos.x = 0
-        if self.rect.bottom < 0: self.pos.y = self.screenheight
-        elif self.rect.top > self.screenheight: self.pos.y = 0
+        # Use half of the rect's width and height (original image) for wrapping
+        half_w = self.rect.width / 2
+        half_h = self.rect.height / 2
+
+        # Wrap horizontally
+        if self.pos.x < -half_w:
+            self.pos.x = self.screenwidth + half_w
+        elif self.pos.x > self.screenwidth + half_w:
+            self.pos.x = -half_w
+
+        # Wrap vertically
+        if self.pos.y < -half_h:
+            self.pos.y = self.screenheight + half_h
+        elif self.pos.y > self.screenheight + half_h:
+            self.pos.y = -half_h
         
         # Finalize rect position
         self.rect.center = self.pos
@@ -147,13 +150,13 @@ class UFO(pygame.sprite.Sprite):
             player.pos.x - self.rect.centerx))
         shoot_angle += 90
 
-        # if player score is over 1000, shoot more accurately 
-        # (2000 is twice as accurate, 3000 three times, etc.)
-        if player.score < 1000:
+        # if player score is over 2000, shoot more accurately 
+        # (4000 is twice as accurate, 6000 three times, etc.)
+        if player.score < 2000:
             shoot_angle += random.randrange(-45,45)
         else:
-            shoot_angle += random.randrange(-45,45) * 1000 / player.score
-        new_bullet = Bullet(self.rect.centerx, self.rect.centery, -shoot_angle, lifetime=3, speed=400, kills=True, ufo=True)
+            shoot_angle += random.randrange(-45,45) * 2000 / player.score
+        new_bullet = Bullet(self.rect.centerx, self.rect.centery, -shoot_angle, lifetime=2, speed=400, kills=True, ufo=True)
         self.bullets.add(new_bullet)
         self.time_since_last_shot = 0
     
