@@ -31,8 +31,12 @@ class Sound:
         self.ship_impact_sound.set_volume(0.5)
         self.ship_impact_sound.play()
 
+    def ufo_impact(self):
+        self.ship_impact_sound.set_volume(0.3)
+        self.ship_impact_sound.play()
+
     def ufo(self):
-        
+        self.ufo_sound.set_volume(0.5)
         self.ufo_sound.play()
     
     def fade_ufo(self, amount):

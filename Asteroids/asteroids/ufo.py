@@ -6,7 +6,7 @@ from .sounds import Sound
 import os
 
 class UFO(pygame.sprite.Sprite):
-    def __init__(self, screenwidth, screenheight, bullets, sounds):
+    def __init__(self, screenwidth, screenheight, bullets, obstacles, sounds):
         super().__init__()
         self.sounds = sounds
         self.sounds.ufo()
@@ -32,31 +32,36 @@ class UFO(pygame.sprite.Sprite):
         self.speed = 200
         self.angle = random.randrange(0, 360)
         sides = ['top', 'bottom', 'left', 'right']
-        side = random.choice(sides)
-        if side == 'top':
-            self.rect.center = (random.randrange(0, screenwidth), 0)
-        elif side == 'bottom':
-            self.rect.center = (random.randrange(0, screenwidth), screenheight)
-        elif side == 'left':
-            self.rect.center = (0, random.randrange(0, screenheight))
-        elif side == 'right':
-            self.rect.center = (screenwidth, random.randrange(0, screenheight))
-        self.angle = 0
-        
-        if side == 'top':
-            self.angle = random.randrange(150, 210)
-        elif side == 'bottom':
-            self.angle = random.randrange(-30, 30)
-        elif side == 'left':
-            self.angle = random.randrange(-120, -60)
-        elif side == 'right':
-            self.angle = random.randrange(60, 120)
+        def randomizespawnpoint():
+            side = random.choice(sides)
+            if side == 'top':
+                self.rect.center = (random.randrange(0, screenwidth), 0)
+            elif side == 'bottom':
+                self.rect.center = (random.randrange(0, screenwidth), screenheight)
+            elif side == 'left':
+                self.rect.center = (0, random.randrange(0, screenheight))
+            elif side == 'right':
+                self.rect.center = (screenwidth, random.randrange(0, screenheight))
+            self.angle = 0
+            
+            if side == 'top':
+                self.angle = random.randrange(150, 210)
+            elif side == 'bottom':
+                self.angle = random.randrange(-30, 30)
+            elif side == 'left':
+                self.angle = random.randrange(-120, -60)
+            elif side == 'right':
+                self.angle = random.randrange(60, 120)
+            for obstacle in obstacles:
+                if pygame.Vector2(self.rect.center).distance_to(obstacle.pos) < 300:
+                    randomizespawnpoint()
+        randomizespawnpoint()
 
         self.turnclockwise = False
         self.turncounterclockwise = False
         self.turntimer = 0.0
         self.velocity = pygame.Vector2(0, -self.speed).rotate(-self.angle)
-        self.shoot_delay = 0.5 #seconds between shots
+        self.shoot_delay = 1 #seconds between shots
         self.time_since_last_shot = 0
 
         self.flicker_timer = 0
@@ -65,7 +70,7 @@ class UFO(pygame.sprite.Sprite):
         self.pos = pygame.Vector2(self.rect.center)
 
 
-    def update(self, dt, player_pos, obstacles):
+    def update(self, dt, player, obstacles):
 
         self.sounds.fade_ufo(dt / 4)
         if not (self.turnclockwise or self.turncounterclockwise):
@@ -112,23 +117,28 @@ class UFO(pygame.sprite.Sprite):
 
         self.time_since_last_shot += dt
         if self.time_since_last_shot >= self.shoot_delay:
-            self.shoot(player_pos)
+            self.shoot(player)
             
 
         
     def draw(self,surface):
         surface.blit(self.image, self.rect)
 
-    def shoot(self, player_pos):
+    def shoot(self, player):
         if self.time_since_last_shot < self.shoot_delay:
             return
         shoot_angle = math.degrees(math.atan2(
-            player_pos.y - self.rect.centery,
-            player_pos.x - self.rect.centerx))
+            player.pos.y - self.rect.centery,
+            player.pos.x - self.rect.centerx))
         shoot_angle += 90
-        new_bullet = Bullet(self.rect.centerx, self.rect.centery, -shoot_angle, speed=400, kills=True, ufo=True)
+        if player.score < 1000:
+            shoot_angle += random.randrange(-45,45)
+        else:
+            shoot_angle += random.randrange(-45,45) * 1000 / player.score
+        new_bullet = Bullet(self.rect.centerx, self.rect.centery, -shoot_angle, lifetime=3, speed=400, kills=True, ufo=True)
         self.bullets.add(new_bullet)
         self.time_since_last_shot = 0
     
     def death(self):
+        self.sounds.fade_ufo(0.5)
         self.kill()

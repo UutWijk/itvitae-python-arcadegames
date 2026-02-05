@@ -54,7 +54,7 @@ class Asteroids(Game):
         self.player = Player(screen.get_width(), screen.get_height(), self.bullets, self.sounds)
         self.obstacles = Group()
         self.ufos = Group()
-        self.ufo_timer = 2
+        self.ufo_timer = 20
         # for title screen background
         for _ in range(self.current_count):
             self.spawn_obstacle()
@@ -84,7 +84,8 @@ class Asteroids(Game):
                         if pygame.sprite.collide_mask(bullet, ufo) and bullet.kills and not bullet.ufo:
                             bullet.kill()
                             self.player.add_score(200)
-                            ufo.hit = True  
+                            ufo.hit = True
+                            self.sounds.ufo_impact()  
             for obstacle in self.obstacles:
                 hit_obstacles = []
                 for ufo in self.ufos:
@@ -131,10 +132,10 @@ class Asteroids(Game):
             
         self.bullets.update(dt)
         self.obstacles.update(dt)
-        self.ufos.update(dt, self.player.pos, self.obstacles)
+        self.ufos.update(dt, self.player, self.obstacles)
         self.ufo_timer -= dt
         if self.ufo_timer <= 0:
-            self.ufos.add(UFO(self.screen.get_width(), self.screen.get_height(), self.bullets, self.sounds))
+            self.ufos.add(UFO(self.screen.get_width(), self.screen.get_height(), self.bullets, self.obstacles, self.sounds))
             self.ufo_timer = random.randint(15, 30)
 
         if self.current_state == "game_over":
