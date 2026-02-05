@@ -1,6 +1,6 @@
 ## Architecture
 
-The function that runs the game is contained within **main.py**, and a majority of modules are directly referenced within it. The only exceptions to this are the modules tied to individual game pieces, which are referenced inside of **block_field.py**. The block_field module contains a class that defines the game board as a whole.
+The functions that run the game are contained within the **tetris.py** module, and a majority of modules are directly referenced within it. The only exceptions to this are the modules tied to individual game pieces, which are referenced inside of **block_field.py**. The block_field module contains a class that defines the game board as a whole.
 
 An overview of every module & how they reference each other:
 
@@ -9,7 +9,7 @@ An overview of every module & how they reference each other:
 
 ## Modules & Functions
 
-**main.py** contains the "main" function which runs the game by starting a game loop which updates the game state in regular intervals e.g. making game pieces fall downwards. It directly references **block_field.py**, **movement.py**, **game_state.py** and **draw_score.py**.
+**tetris.py** contains the Tetris class which contains a update(), draw() and handle_events() function which run the game by updating the the game, drawing to the screen and handling events in regular intervals making pieces fall downwards. They directly reference **block_field.py**, **movement.py**, **game_state.py** and **draw_score.py**.
 
 **game_state.py** is where the current state of the game is stored, using classes for "Timer" (determining game speed) & "Score".
 
