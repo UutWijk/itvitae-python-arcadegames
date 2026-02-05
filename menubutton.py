@@ -36,10 +36,13 @@ class MenuButton:
         # draw screenshot over slightly larger light blue backlayer
         if self.screenshot:
             screen.blit(self.screenshot, self.rect)
-            temp_surface = pygame.Surface((self.rect.width, self.rect.height))
-            temp_surface.set_alpha(150)
-            temp_surface.fill((0, 0, 0))
-            screen.blit(temp_surface, self.rect.topleft)
+
+            # makes screenshot darker if not selected
+            if not is_selected:
+                temp_surface = pygame.Surface((self.rect.width, self.rect.height))
+                temp_surface.set_alpha(150)
+                temp_surface.fill((0, 0, 0))
+                screen.blit(temp_surface, self.rect.topleft)
         pygame.draw.rect(screen, (0, 0, 0), self.rect, 2)  # add thin black border to screenshot
         
         # render the text
