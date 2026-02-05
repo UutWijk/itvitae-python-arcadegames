@@ -16,6 +16,7 @@ class Sound:
         self.laser_2_sound = pygame.mixer.Sound(os.path.join(self.current_dir, "sounds/laser_2.mp3"))
         self.ship_impact_sound = pygame.mixer.Sound(os.path.join(self.current_dir, "sounds/ship_impact.mp3"))
         self.ufo_sound = pygame.mixer.Sound(os.path.join(self.current_dir, "sounds/ufo.mp3"))
+        self.ufo_sound.set_volume(0.5)
 
     def laser(self):
         self.laser_2_sound.set_volume(0.5)
@@ -30,7 +31,14 @@ class Sound:
         self.ship_impact_sound.set_volume(0.5)
         self.ship_impact_sound.play()
 
+    def ufo_impact(self):
+        self.ship_impact_sound.set_volume(0.3)
+        self.ship_impact_sound.play()
+
     def ufo(self):
         self.ufo_sound.set_volume(0.5)
         self.ufo_sound.play()
+    
+    def fade_ufo(self, amount):
+        self.ufo_sound.set_volume(self.ufo_sound.get_volume()-amount)
 

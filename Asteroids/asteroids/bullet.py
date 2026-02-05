@@ -7,7 +7,7 @@ from pygame.sprite import Sprite, Group
 class Bullet(Sprite):
 
     # Attributes die we nodig hebben zijn positie en de hoek. 
-    def __init__(self, x, y, angle, lifetime=1, speed=1000, kills=True):
+    def __init__(self, x, y, angle, lifetime=1, speed=1000, kills=True, ufo=False):
 
         # Initialiseer de parent Sprite class. 
         super().__init__()
@@ -25,6 +25,7 @@ class Bullet(Sprite):
 
         self.lifetime = lifetime
         self.kills = kills
+        self.ufo = ufo
 
     def update(self, dt):
         # Verplaatst de position vector. 
