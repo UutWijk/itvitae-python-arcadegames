@@ -31,7 +31,6 @@ class UFO(pygame.sprite.Sprite):
             self.maskimage,
             (int(w * SCALE), int(h * SCALE)))
         self.mask = pygame.mask.from_surface(self.maskimage)
-        self.rect.center = (screenwidth // 2, screenheight // 2)
 
         # movement parameters
         self.speed = 200
