@@ -7,13 +7,12 @@ class Tetromino():
         self.block = block
         self.size = 3
 
-    def check_for_rotate(self, Key_A, Key_B) -> bool:
+    def check_for_rotate(self, keys_just_pressed) -> bool:
         """
         this function checks if the player is rotating the current piece, and returns the new shape after rotation if the player did in fact rotate
         """
-        keys=pygame.key.get_just_pressed()
-        rotate_counterclockwise = keys[Key_A]
-        rotate_clockwise = keys[Key_B]
+        rotate_clockwise = keys_just_pressed["a"]
+        rotate_counterclockwise = keys_just_pressed["b"]
         newshape = []
 
         if rotate_clockwise:

@@ -31,7 +31,7 @@ def movement(playfield, keys, keys_pressed, keys_just_pressed):
     """
     this function handles the movement of tetrominos
     """
-    newshape = playfield.current_piece.check_for_rotate(pygame.K_x, pygame.K_z)
+    newshape = playfield.current_piece.check_for_rotate(keys_just_pressed)
     if(newshape):
         can_rotate = test_rotation(playfield, newshape)
         if(can_rotate):
