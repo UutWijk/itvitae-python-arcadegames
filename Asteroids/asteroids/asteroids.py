@@ -113,14 +113,15 @@ class Asteroids(Game):
                 
                 for bullet in self.bullets:   
                     if pygame.sprite.collide_mask(bullet, obstacle) and bullet.kills and bullet.ufo == False:
-                        bullet.kill()               
-                        match obstacle.stage:
-                            case 1:
-                                self.player.add_score(10)
-                            case 2:
-                                self.player.add_score(20)
-                            case 3:
-                                self.player.add_score(50)
+                        bullet.kill()            
+                        if self.current_state == "gameplay":   
+                            match obstacle.stage:
+                                case 1:
+                                    self.player.add_score(10)
+                                case 2:
+                                    self.player.add_score(20)
+                                case 3:
+                                    self.player.add_score(50)
                         for _ in range(random.randint(2, 5)):
                             self.bullets.add(Bullet(obstacle.pos.x, obstacle.pos.y, random.uniform(0, 360), lifetime=random.uniform(0.1, 1.6), speed=random.uniform(10, 200), kills=False))
                         new_obstacles = obstacle.killed()
@@ -133,10 +134,11 @@ class Asteroids(Game):
         self.bullets.update(dt)
         self.obstacles.update(dt)
         self.ufos.update(dt, self.player, self.obstacles)
-        self.ufo_timer -= dt
-        if self.ufo_timer <= 0:
-            self.ufos.add(UFO(self.screen.get_width(), self.screen.get_height(), self.bullets, self.obstacles, self.sounds))
-            self.ufo_timer = random.randint(15, 30)
+        if self.current_state == "gameplay":
+            self.ufo_timer -= dt
+            if self.ufo_timer <= 0:
+                self.ufos.add(UFO(self.screen.get_width(), self.screen.get_height(), self.bullets, self.obstacles, self.sounds))
+                self.ufo_timer = random.randint(15, 30)
 
         if self.current_state == "game_over":
             self.game_over_timer += dt
@@ -260,6 +262,7 @@ class Asteroids(Game):
         self.bullets.empty()
         self.obstacles.empty()
         self.ufos.empty()
+        self.ufo_timer = 20
 
         self.player = Player(self.screen.get_width(), self.screen.get_height(), self.bullets, self.sounds)
         self.current_count = self.start_count

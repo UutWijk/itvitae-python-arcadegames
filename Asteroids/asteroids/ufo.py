@@ -90,9 +90,9 @@ class UFO(pygame.sprite.Sprite):
                 self.turnclockwise = False
                 self.turncounterclockwise = False
             if self.turnclockwise:
-                self.velocity = pygame.Vector2(0, -self.speed).rotate(-self.angle + 60)
-            if self.turncounterclockwise:
                 self.velocity = pygame.Vector2(0, -self.speed).rotate(-self.angle - 60)
+            if self.turncounterclockwise:
+                self.velocity = pygame.Vector2(0, -self.speed).rotate(-self.angle + 60)
         self.pos += self.velocity * dt
         self.rect = self.image.get_rect(center=self.pos)
         self.mask = pygame.mask.from_surface(self.image)
