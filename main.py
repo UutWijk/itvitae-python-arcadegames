@@ -49,7 +49,7 @@ def change_state(key):
     if key in states:
         current_state = states[key](DISPLAY_SCREEN)
         current_state_key = key
-        pygame.display.set_caption(type(states[key]).__name__)
+        pygame.display.set_caption(key)
     elif key == "MENU":
         current_state = MainMenu(DISPLAY_SCREEN, games)
         current_state_key = "MENU"
